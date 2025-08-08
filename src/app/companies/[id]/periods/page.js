@@ -18,31 +18,7 @@ import {
   DeleteOutlined,
   SearchOutlined 
 } from '@ant-design/icons';
-
-// Fetcher function for SWR - real API request
-const fetcher = async (url) => {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-  if (!apiUrl) {
-    throw new Error('NEXT_PUBLIC_API_URL is not defined');
-  }
-
-  const response = await fetch(`${apiUrl}${url}`);
-  
-  if (!response.ok) {
-    throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
-  }
-  
-  const result = await response.json();
-  
-  // Transform JSON API format to our component format
-  return result.data?.map(item => ({
-    id: item.id,
-    name: item.attributes.name,
-    type: item.attributes.period_type || 'N/A',
-    status: item.attributes.status || 'N/A',
-    companyId: item.relationships?.company?.data?.id
-  })) || [];
-};
+import { fetcher } from '../../../../constants';
 
 const PeriodsPage = () => {
   const params = useParams();
@@ -50,10 +26,19 @@ const PeriodsPage = () => {
   const [searchValue, setSearchValue] = useState(null);
 
   // SWR call to fetch periods data
-  const { data: periods, error, isLoading } = useSWR(
-    id ? `/companies/${id}/periods` : null,
-    fetcher
+  const { data: response, error, isLoading } = useSWR(
+    id ? `${process.env.NEXT_PUBLIC_API_URL}/companies/${id}/periods` : null,
+    (url) => fetcher(url, { method: 'GET' })
   );
+
+  // Transform the response data to component format
+  const allPeriods = response?.data?.map(item => ({
+    id: item.id,
+    name: item.attributes.name,
+    type: item.attributes.period_type || 'N/A',
+    status: item.attributes.status || 'N/A',
+    companyId: item.relationships?.company?.data?.id
+  })) || [];
 
   // Handle search/filter
   const handleSearch = (value) => {
@@ -61,7 +46,7 @@ const PeriodsPage = () => {
   };
 
   // Filter periods based on search
-  const filteredPeriods = periods?.filter(period => 
+  const filteredPeriods = allPeriods?.filter(period => 
     !searchValue || period.name?.toLowerCase().includes(searchValue.toLowerCase())
   ) || [];
 
@@ -183,7 +168,7 @@ const PeriodsPage = () => {
           style={{ width: 300 }}
           onChange={handleSearch}
           suffixIcon={<SearchOutlined />}
-          options={periods?.map(period => ({
+          options={allPeriods?.map(period => ({
             value: period.name,
             label: period.name,
           })) || []}

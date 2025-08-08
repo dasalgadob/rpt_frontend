@@ -4,26 +4,18 @@ import React from 'react';
 import { Table, Button, Space, Tag, Card, message, Select } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import useSWR from 'swr';
+import { fetcher } from '../../../../../constants';
 
 const { Option } = Select;
 
-// Fetcher function for SWR
-const fetcher = async (url) => {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-  if (!apiUrl) {
-    throw new Error('NEXT_PUBLIC_API_URL is not defined');
-  }
+const AreaGoals = ({ companyId }) => {
+  const { data: response, error, isLoading, mutate } = useSWR(
+    companyId ? `${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/area-goals` : null,
+    (url) => fetcher(url, { method: 'GET' })
+  );
 
-  const response = await fetch(`${apiUrl}${url}`);
-  
-  if (!response.ok) {
-    throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
-  }
-  
-  const result = await response.json();
-  
-  // Transform JSON API format to component format
-  return result.data?.map(item => ({
+  // Transform the response data to component format
+  const goals = response?.data?.map(item => ({
     id: item.id,
     name: item.attributes.name,
     description: item.attributes.description,
@@ -34,13 +26,6 @@ const fetcher = async (url) => {
     progress: item.attributes.progress || 0,
     responsibleArea: item.attributes.responsible_area,
   })) || [];
-};
-
-const AreaGoals = ({ companyId }) => {
-  const { data: goals, error, isLoading, mutate } = useSWR(
-    companyId ? `/companies/${companyId}/area-goals` : null,
-    fetcher
-  );
 
   const handleEdit = (record) => {
     message.info(`Editando meta de área: ${record.name}`);
