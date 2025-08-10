@@ -1,12 +1,20 @@
 "use client";
 
-import React from 'react';
-import { Table, Button, Space, Tag, Card, message } from 'antd';
+import React, { useState } from 'react';
+import { Table, Button, Space, Tag, Card } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import useSWR from 'swr';
 import { fetcher } from '../../../../../constants';
+import CorporateGoalForm from './CorporateGoalForm';
+import { toast } from 'react-toastify';
 
 const CorporateGoals = ({ companyId }) => {
+  const [modalState, setModalState] = useState({
+    visible: false,
+    mode: 'add', // 'add' or 'edit'
+    selectedRecord: null
+  });
+
   const { data: response, error, isLoading, mutate } = useSWR(
     companyId ? `${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/corporate_goals` : null,
     (url) => fetcher(url, { method: 'GET' })
@@ -15,74 +23,85 @@ const CorporateGoals = ({ companyId }) => {
   // Transform the response data to component format
   const goals = response?.data?.map(item => ({
     id: item.id,
-    name: item.attributes.name,
+    dimension_id: item.attributes.dimension_id,
     description: item.attributes.description,
-    status: item.attributes.status || 'Active',
-    target: item.attributes.target,
-    current: item.attributes.current || 0,
-    progress: item.attributes.progress || 0,
+    percentage: item.attributes.percentage,
+    score: item.attributes.score,
+    period: item.attributes.period,
   })) || [];
 
   const handleEdit = (record) => {
-    message.info(`Editando meta corporativa: ${record.name}`);
-    // TODO: Implement edit functionality
+    setModalState({
+      visible: true,
+      mode: 'edit',
+      selectedRecord: record
+    });
   };
 
   const handleDelete = (record) => {
-    message.info(`Eliminando meta corporativa: ${record.name}`);
+    toast.info(`Eliminando meta corporativa: ${record.id}`);
     // TODO: Implement delete functionality
   };
 
   const handleAdd = () => {
-    message.info('Añadiendo nueva meta corporativa');
-    // TODO: Implement add functionality
+    setModalState({
+      visible: true,
+      mode: 'add',
+      selectedRecord: null
+    });
+  };
+
+  const handleModalCancel = () => {
+    setModalState(prev => ({
+      ...prev,
+      visible: false,
+      selectedRecord: null
+    }));
+  };
+
+  const handleModalSuccess = () => {
+    mutate(); // Refresh the data
+    setModalState({
+      visible: false,
+      mode: 'add',
+      selectedRecord: null
+    });
   };
 
   const columns = [
     {
-      title: 'Nombre',
-      dataIndex: 'name',
-      key: 'name',
-      render: (text) => <strong>{text}</strong>,
+      title: 'Dimensión',
+      dataIndex: 'dimension_id',
+      key: 'dimension_id',
+      render: (dimension_id) => dimension_id || 'N/A',
+      sorter: (a, b) => (a.dimension_id || 0) - (b.dimension_id || 0),
     },
     {
       title: 'Descripción',
       dataIndex: 'description',
       key: 'description',
       ellipsis: true,
+      render: (text) => text || 'N/A',
     },
     {
-      title: 'Meta',
-      dataIndex: 'target',
-      key: 'target',
-      render: (target) => target || 'N/A',
+      title: 'Porcentaje',
+      dataIndex: 'percentage',
+      key: 'percentage',
+      render: (percentage) => percentage ? `${percentage}%` : 'N/A',
+      sorter: (a, b) => (a.percentage || 0) - (b.percentage || 0),
     },
     {
-      title: 'Actual',
-      dataIndex: 'current',
-      key: 'current',
-      render: (current) => current || 0,
+      title: 'Evaluación',
+      dataIndex: 'score',
+      key: 'score',
+      render: (score) => score || 'N/A',
+      sorter: (a, b) => (a.score || 0) - (b.score || 0),
     },
     {
-      title: 'Progreso',
-      dataIndex: 'progress',
-      key: 'progress',
-      render: (progress) => `${progress || 0}%`,
-    },
-    {
-      title: 'Estado',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status) => {
-        const color = status === 'Active' ? 'green' : status === 'Completed' ? 'blue' : 'red';
-        return <Tag color={color}>{status}</Tag>;
-      },
-      filters: [
-        { text: 'Active', value: 'Active' },
-        { text: 'Completed', value: 'Completed' },
-        { text: 'Paused', value: 'Paused' },
-      ],
-      onFilter: (value, record) => record.status === value,
+      title: 'Periodo',
+      dataIndex: 'period',
+      key: 'period',
+      render: (period) => period || 'N/A',
     },
     {
       title: 'Acciones',
@@ -144,6 +163,16 @@ const CorporateGoals = ({ companyId }) => {
           showTotal: (total, range) =>
             `${range[0]}-${range[1]} de ${total} metas`,
         }}
+      />
+
+      <CorporateGoalForm
+        visible={modalState.visible}
+        onCancel={handleModalCancel}
+        onSuccess={handleModalSuccess}
+        initialValues={modalState.selectedRecord}
+        title={modalState.mode === 'add' ? 'Añadir Meta Corporativa' : 'Editar Meta Corporativa'}
+        mode={modalState.mode}
+        companyId={companyId}
       />
     </div>
   );
