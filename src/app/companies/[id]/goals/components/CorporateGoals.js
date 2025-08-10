@@ -34,11 +34,12 @@ const CorporateGoals = ({ companyId }) => {
   // Transform the response data to component format
   const goals = response?.data?.map(item => ({
     id: item.id,
-    dimension_id: item.attributes.dimension_id,
-    description: item.attributes.description,
-    percentage: item.attributes.percentage,
-    score: item.attributes.score,
-    period: item.attributes.period,
+    dimension_id: item.attributes?.dimension.id,
+    dimension: item.attributes?.dimension,
+    description: item.attributes?.description,
+    percentage: item.attributes?.percentage,
+    score: item.attributes?.score,
+    period: item.attributes?.period,
   })) || [];
 
   const handleEdit = (record) => {
@@ -82,10 +83,10 @@ const CorporateGoals = ({ companyId }) => {
   const columns = [
     {
       title: 'Dimensión',
-      dataIndex: 'dimension_id',
+      dataIndex: 'dimension',
       key: 'dimension_id',
-      render: (dimension_id) => dimension_id || 'N/A',
-      sorter: (a, b) => (a.dimension_id || 0) - (b.dimension_id || 0),
+      render: (dimension) => dimension?.name || 'N/A',
+      sorter: (a, b) => (a.dimension?.name || 0) - (b.dimension?.name || 0),
     },
     {
       title: 'Descripción',
@@ -112,7 +113,7 @@ const CorporateGoals = ({ companyId }) => {
       title: 'Periodo',
       dataIndex: 'period',
       key: 'period',
-      render: (period) => period || 'N/A',
+      render: (period) => period?.name || 'N/A',
     },
     {
       title: 'Acciones',

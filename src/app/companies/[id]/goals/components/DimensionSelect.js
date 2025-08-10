@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useEffect } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import { Select, Form } from 'antd';
 import useSWR from 'swr';
 import { fetcher } from '../../../../../constants';
@@ -20,7 +20,8 @@ const DimensionSelect = ({
     (url) => fetcher(url, { method: 'GET' })
   );
 
-  // Transform the response data to component format
+  // Track when SWR data changes to trigger updates
+  const dimensionsKey = response?.data?.length || 0;
   const dimensions = useMemo(() => {
     return response?.data?.map(item => ({
       id: item.id,
@@ -31,6 +32,7 @@ const DimensionSelect = ({
   // Create a select component that can handle auto-selection
   const DimensionSelectField = (props) => {
     const { value, onChange } = props;
+    const [displayValue, setDisplayValue] = useState(null);
     
     // Auto-select first dimension if enabled and no value is set
     useEffect(() => {
@@ -40,6 +42,46 @@ const DimensionSelect = ({
       }
     }, [value, onChange]);
 
+    // Update display value when dimensions load or value changes
+    useEffect(() => {
+      if (!value) {
+        setDisplayValue(null);
+        return;
+      }
+
+      // Handle both string and number IDs by converting both to strings for comparison
+      const dimension = dimensions.find(dim => 
+        String(dim.id) === String(value)
+      );
+      
+      if (dimension) {
+        setDisplayValue({
+          value: dimension.id,
+          label: dimension.name
+        });
+      } else {
+        // If dimension not found yet (still loading), show temporary label
+        setDisplayValue({
+          value: value,
+          label: isLoading ? "Cargando..." : `Dimensión ${value}`
+        });
+      }
+    }, [value]); // Only depend on value
+
+    // Update display when component receives new data (dimensions will change)
+    if (value && dimensions.length > 0) {
+      const dimension = dimensions.find(dim => 
+        String(dim.id) === String(value)
+      );
+      
+      if (dimension && (!displayValue || displayValue.label !== dimension.name)) {
+        setDisplayValue({
+          value: dimension.id,
+          label: dimension.name
+        });
+      }
+    }
+
     return (
       <Select
         style={{ width: '100%' }}
@@ -48,10 +90,16 @@ const DimensionSelect = ({
         allowClear
         showSearch
         disabled={!periodId}
+        labelInValue
+        value={displayValue}
         filterOption={(input, option) =>
           option?.children?.toLowerCase().indexOf(input.toLowerCase()) >= 0
         }
-        {...props}
+        onChange={(selected) => {
+          // Extract just the ID for the form
+          onChange(selected?.value);
+        }}
+        notFoundContent={isLoading ? "Cargando..." : "No hay dimensiones disponibles"}
       >
         {dimensions.map(dimension => (
           <Option key={dimension.id} value={dimension.id}>
