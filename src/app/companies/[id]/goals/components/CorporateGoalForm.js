@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { Form, Input, InputNumber, Select, Modal } from 'antd';
 import { toast } from 'react-toastify';
 import { fetcher } from '../../../../../constants';
+import PeriodSelect from './PeriodSelect';
 
 const { Option } = Select;
 
@@ -79,13 +80,20 @@ const CorporateGoalForm = ({
       confirmLoading={loading}
       okText="Guardar"
       cancelText="Cancelar"
-      destroyOnClose
     >
       <Form
         form={form}
         layout="vertical"
         preserve={false}
       >
+        <PeriodSelect
+          name="period"
+          selectFirstAsDefault={true}
+          companyId={companyId}
+          placeholder="Seleccionar periodo"
+          rules={[{ required: true, message: 'Por favor ingrese el periodo' }]}
+        />
+
         <Form.Item
           name="dimension_id"
           label="Dimensión"
@@ -137,16 +145,6 @@ const CorporateGoalForm = ({
             style={{ width: '100%' }}
             min={0}
             step={0.1}
-          />
-        </Form.Item>
-
-        <Form.Item
-          name="period"
-          label="Periodo"
-          rules={[{ required: true, message: 'Por favor ingrese el periodo' }]}
-        >
-          <Input
-            placeholder="Ingrese el periodo (ej: 2024-Q1)"
           />
         </Form.Item>
       </Form>

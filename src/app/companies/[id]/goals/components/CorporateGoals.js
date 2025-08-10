@@ -1,14 +1,18 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Table, Button, Space, Tag, Card } from 'antd';
+import { Table, Button, Space, Tag, Card, Col, Form } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import useSWR from 'swr';
 import { fetcher } from '../../../../../constants';
 import CorporateGoalForm from './CorporateGoalForm';
+import PeriodSelect from './PeriodSelect';
 import { toast } from 'react-toastify';
 
 const CorporateGoals = ({ companyId }) => {
+  const [filterForm] = Form.useForm();
+  const [periodFilter, setPeriodFilter] = useState(null);
+  
   const [modalState, setModalState] = useState({
     visible: false,
     mode: 'add', // 'add' or 'edit'
@@ -16,9 +20,16 @@ const CorporateGoals = ({ companyId }) => {
   });
 
   const { data: response, error, isLoading, mutate } = useSWR(
-    companyId ? `${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/corporate_goals` : null,
+    companyId ? `${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/corporate_goals${periodFilter ? `?period_id=${periodFilter}` : ''}` : null,
     (url) => fetcher(url, { method: 'GET' })
   );
+
+  // Watch for form changes and trigger SWR revalidation
+  const onFilterFormChange = (changedValues, allValues) => {
+    if ('period' in changedValues) {
+      setPeriodFilter(allValues.period);
+    }
+  };
 
   // Transform the response data to component format
   const goals = response?.data?.map(item => ({
@@ -140,15 +151,27 @@ const CorporateGoals = ({ companyId }) => {
 
   return (
     <div>
+      <Form form={filterForm} onValuesChange={onFilterFormChange}>
+        <Col span={4}>
+          <PeriodSelect
+              name="period"
+              companyId={companyId}
+              placeholder="Filtrar por periodo"
+              selectFirstAsDefault={true}
+          />
+        </Col>
+      </Form>
       <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h3 style={{ margin: 0 }}>Metas Corporativas</h3>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={handleAdd}
-        >
-          Añadir Meta
-        </Button>
+        <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={handleAdd}
+          >
+            Añadir Meta
+          </Button>
+        </div>
       </div>
       
       <Table
