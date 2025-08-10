@@ -7,20 +7,21 @@ import { fetcher } from '../../../../../constants';
 
 const { Option } = Select;
 
-const PeriodSelect = ({ 
+const DimensionSelect = ({ 
   companyId, 
-  placeholder = "Seleccionar periodo",
+  periodId,
+  placeholder = "Seleccionar dimensión",
   selectFirstAsDefault = false,
   rules = [],
   name
 }) => {
   const { data: response, error, isLoading } = useSWR(
-    companyId ? `${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/periods` : null,
+    companyId && periodId ? `${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/dimensions?period_id=${periodId}` : null,
     (url) => fetcher(url, { method: 'GET' })
   );
 
   // Transform the response data to component format
-  const periods = useMemo(() => {
+  const dimensions = useMemo(() => {
     return response?.data?.map(item => ({
       id: item.id,
       name: item.attributes.name,
@@ -28,32 +29,33 @@ const PeriodSelect = ({
   }, [response?.data]);
 
   // Create a select component that can handle auto-selection
-  const PeriodSelectField = (props) => {
-    const { value, onChange: formOnChange } = props;
+  const DimensionSelectField = (props) => {
+    const { value, onChange } = props;
     
-    // Auto-select first period if enabled and no value is set
+    // Auto-select first dimension if enabled and no value is set
     useEffect(() => {
-      if (selectFirstAsDefault && periods.length > 0 && !value && formOnChange) {
-        const firstPeriodId = periods[0].id;
-        formOnChange(firstPeriodId);
+      if (selectFirstAsDefault && dimensions.length > 0 && !value && onChange) {
+        const firstDimensionId = dimensions[0].id;
+        onChange(firstDimensionId);
       }
-    }, [value, formOnChange]); // Only essential dependencies
+    }, [value, onChange]);
 
     return (
       <Select
         style={{ width: '100%' }}
-        placeholder={placeholder}
+        placeholder={periodId ? placeholder : "Primero selecciona un periodo"}
         loading={isLoading}
         allowClear
         showSearch
+        disabled={!periodId}
         filterOption={(input, option) =>
           option?.children?.toLowerCase().indexOf(input.toLowerCase()) >= 0
         }
         {...props}
       >
-        {periods.map(period => (
-          <Option key={period.id} value={period.id}>
-            {period.name}
+        {dimensions.map(dimension => (
+          <Option key={dimension.id} value={dimension.id}>
+            {dimension.name}
           </Option>
         ))}
       </Select>
@@ -61,10 +63,10 @@ const PeriodSelect = ({
   };
 
   return (
-    <Form.Item label="Periodo" name={name} style={{ marginBottom: 0 }} rules={rules}>
-      <PeriodSelectField />
+    <Form.Item label="Dimensión" name={name} style={{ marginBottom: 0 }} rules={rules}>
+      <DimensionSelectField />
     </Form.Item>
   );
 };
 
-export default PeriodSelect;
+export default DimensionSelect;

@@ -1,12 +1,16 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Form, Input, InputNumber, Select, Modal } from 'antd';
 import { toast } from 'react-toastify';
+import useSWRMutation from 'swr/mutation';
 import { fetcher } from '../../../../../constants';
 import PeriodSelect from './PeriodSelect';
+import DimensionSelect from './DimensionSelect';
 
 const { Option } = Select;
+
+const PERIOD_ID = 'period_id';
 
 const CorporateGoalForm = ({ 
   visible, 
@@ -18,7 +22,23 @@ const CorporateGoalForm = ({
   companyId
 }) => {
   const [form] = Form.useForm();
-  const [loading, setLoading] = useState(false);
+  
+  // Watch period value from form
+  const periodValue = Form.useWatch(PERIOD_ID, form);
+
+  // SWR mutation for creating/updating corporate goals
+  const { trigger: saveGoal, isMutating } = useSWRMutation(
+    `${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/corporate_goals`,
+    async (url, { arg }) => {
+      const { values, goalId, method } = arg;
+      const requestUrl = method === 'POST' ? url : `${url}/${goalId}`;
+      
+      return fetcher(requestUrl, {
+        method,
+        body: { corporate_goal: values }
+      });
+    }
+  );
 
   useEffect(() => {
     if (visible) {
@@ -30,24 +50,21 @@ const CorporateGoalForm = ({
     }
   }, [visible, initialValues, form]);
 
+  // Clear dimension when period changes
+  useEffect(() => {
+    if (visible) {
+      form.setFieldValue('dimension_id', undefined);
+    }
+  }, [periodValue, form, visible]);
+
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
-      setLoading(true);
-
-      const url = mode === 'add' 
-        ? `${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/corporate_goals`
-        : `${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/corporate_goals/${initialValues?.id}`;
       
       const method = mode === 'add' ? 'POST' : 'PUT';
+      const goalId = mode === 'edit' ? initialValues?.id : null;
       
-      await fetcher(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ corporate_goal: values }),
-      });
+      await saveGoal({ values, goalId, method });
 
       toast.success(`Meta corporativa ${mode === 'add' ? 'creada' : 'actualizada'} exitosamente`);
       form.resetFields();
@@ -61,8 +78,6 @@ const CorporateGoalForm = ({
         console.error('Error saving corporate goal:', error);
         toast.error(`Error al ${mode === 'add' ? 'crear' : 'actualizar'} la meta corporativa`);
       }
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -77,7 +92,7 @@ const CorporateGoalForm = ({
       open={visible}
       onOk={handleSubmit}
       onCancel={handleCancel}
-      confirmLoading={loading}
+      confirmLoading={isMutating}
       okText="Guardar"
       cancelText="Cancelar"
     >
@@ -87,24 +102,20 @@ const CorporateGoalForm = ({
         preserve={false}
       >
         <PeriodSelect
-          name="period"
+          name={PERIOD_ID}
           selectFirstAsDefault={true}
           companyId={companyId}
           placeholder="Seleccionar periodo"
           rules={[{ required: true, message: 'Por favor ingrese el periodo' }]}
         />
 
-        <Form.Item
+        <DimensionSelect
           name="dimension_id"
-          label="Dimensión"
-          rules={[{ required: true, message: 'Por favor ingrese la dimensión' }]}
-        >
-          <InputNumber
-            placeholder="Ingrese ID de dimensión"
-            style={{ width: '100%' }}
-            min={1}
-          />
-        </Form.Item>
+          companyId={companyId}
+          periodId={periodValue}
+          placeholder="Seleccionar dimensión"
+          rules={[{ required: true, message: 'Por favor seleccione la dimensión' }]}
+        />
 
         <Form.Item
           name="description"
