@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { Form, Input, InputNumber, Select, Modal } from 'antd';
 import { toast } from 'react-toastify';
 import useSWRMutation from 'swr/mutation';
@@ -21,9 +21,7 @@ const CorporateGoalForm = ({
   mode,
   companyId
 }) => {
-  console.log("🚀 ~ CorporateGoalForm ~ initialValues:", initialValues)
   const [form] = Form.useForm();
-  const isSettingInitialValues = useRef(false);
   
   // Watch period value from form
   const periodValue = Form.useWatch(PERIOD_ID, form);
@@ -42,37 +40,18 @@ const CorporateGoalForm = ({
     }
   );
 
-  useEffect(() => {
-    if (visible) {
-      if (initialValues) {
-        isSettingInitialValues.current = true;
-        // Transform initialValues to match form field names
-        const formValues = {
-          ...initialValues,
-          period_id: initialValues.period?.id || initialValues.period_id, // Handle both period object and period_id
-        };
-        
-        // Set values in the next tick to ensure proper timing
-        setTimeout(() => {
-          form.setFieldsValue(formValues);
-          // Reset flag after form is set
-          setTimeout(() => {
-            isSettingInitialValues.current = false;
-          }, 50);
-        }, 0);
-      } else {
-        form.resetFields();
-        isSettingInitialValues.current = false;
-      }
-    }
-  }, [visible, initialValues, form]);
-
-  // Clear dimension when period changes (but not when setting initial values)
-  useEffect(() => {
-    if (visible && !isSettingInitialValues.current) {
-      form.setFieldValue('dimension_id', undefined);
-    }
-  }, [periodValue, form, visible]);
+  // Transform initialValues for form compatibility
+  const formInitialValues = initialValues ? {
+    ...initialValues,
+    percentage: (() => {
+      if (!initialValues.percentage) return undefined;
+      // Handle percentage values - remove % symbol and convert to number
+      const percentageValue = String(initialValues.percentage).replace('%', '');
+      const numValue = parseInt(percentageValue, 10);
+      return isNaN(numValue) ? undefined : numValue;
+    })(),
+    period_id: initialValues.period?.id || initialValues.period_id,
+  } : {};
 
   const handleSubmit = async () => {
     try {
@@ -105,6 +84,7 @@ const CorporateGoalForm = ({
 
   return (
     <Modal
+      key={`modal-${mode}-${initialValues?.id || 'new'}`}
       title={title}
       open={visible}
       onOk={handleSubmit}
@@ -114,9 +94,11 @@ const CorporateGoalForm = ({
       cancelText="Cancelar"
     >
       <Form
+        key={`${mode}-${initialValues?.id || 'new'}`}
         form={form}
         layout="vertical"
         preserve={false}
+        initialValues={formInitialValues}
       >
         <PeriodSelect
           name={PERIOD_ID}

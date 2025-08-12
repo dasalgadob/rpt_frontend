@@ -2,8 +2,10 @@
 
 import React, { useMemo, useEffect, useState } from 'react';
 import { Select, Form } from 'antd';
-import useSWR from 'swr';
+import { PlusOutlined } from '@ant-design/icons';
+import useSWR, { mutate } from 'swr';
 import { fetcher } from '../../../../../constants';
+import CreateDimensionModal from './CreateDimensionModal';
 
 const { Option } = Select;
 
@@ -15,8 +17,10 @@ const DimensionSelect = ({
   rules = [],
   name
 }) => {
+  const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
+  const swrKey = companyId && periodId ? `${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/dimensions?period_id=${periodId}` : null;
   const { data: response, error, isLoading } = useSWR(
-    companyId && periodId ? `${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/dimensions?period_id=${periodId}` : null,
+    swrKey,
     (url) => fetcher(url, { method: 'GET' })
   );
 
@@ -92,15 +96,30 @@ const DimensionSelect = ({
         disabled={!periodId}
         labelInValue
         value={displayValue}
-        filterOption={(input, option) =>
-          option?.children?.toLowerCase().indexOf(input.toLowerCase()) >= 0
-        }
+        filterOption={(input, option) => {
+          // Don't filter the "create" option
+          if (option?.key === 'create-dimension') return true;
+          return option?.children?.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+        }}
         onChange={(selected) => {
+          // Handle "create dimension" option
+          if (selected?.value === 'create-dimension') {
+            setIsCreateModalVisible(true);
+            return;
+          }
           // Extract just the ID for the form
           onChange(selected?.value);
         }}
         notFoundContent={isLoading ? "Cargando..." : "No hay dimensiones disponibles"}
       >
+        {periodId && (
+          <Option key="create-dimension" value="create-dimension" style={{ borderBottom: '1px solid #f0f0f0', marginBottom: 4 }}>
+            <div style={{ display: 'flex', alignItems: 'center', color: '#1890ff' }}>
+              <PlusOutlined style={{ marginRight: 8 }} />
+              Crear Dimensión
+            </div>
+          </Option>
+        )}
         {dimensions.map(dimension => (
           <Option key={dimension.id} value={dimension.id}>
             {dimension.name}
@@ -110,10 +129,30 @@ const DimensionSelect = ({
     );
   };
 
+  const handleCreateDimensionSuccess = (newDimension) => {
+    // Refresh the dimensions data
+    mutate(swrKey);
+    setIsCreateModalVisible(false);
+  };
+
+  const handleCreateDimensionCancel = () => {
+    setIsCreateModalVisible(false);
+  };
+
   return (
-    <Form.Item label="Dimensión" name={name} style={{ marginBottom: 0 }} rules={rules}>
-      <DimensionSelectField />
-    </Form.Item>
+    <>
+      <Form.Item label="Dimensión" name={name} style={{ marginBottom: 0 }} rules={rules}>
+        <DimensionSelectField />
+      </Form.Item>
+      
+      <CreateDimensionModal
+        visible={isCreateModalVisible}
+        onCancel={handleCreateDimensionCancel}
+        onSuccess={handleCreateDimensionSuccess}
+        companyId={companyId}
+        periodId={periodId}
+      />
+    </>
   );
 };
 

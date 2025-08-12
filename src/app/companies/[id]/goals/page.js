@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import { Tabs } from 'antd';
 import CorporateGoals from './components/CorporateGoals';
@@ -11,7 +11,7 @@ const GoalsPage = () => {
   const params = useParams();
   const companyId = params.id;
 
-  const tabItems = [
+  const tabItems = useMemo(() => [
     {
       key: 'corporativas',
       label: 'Corporativas',
@@ -27,7 +27,7 @@ const GoalsPage = () => {
       label: 'Individuales',
       children: <IndividualGoals companyId={companyId} />,
     },
-  ];
+  ], [companyId]);
 
   return (
     <div>

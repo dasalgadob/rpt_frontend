@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { Form, Input, InputNumber, Select, Modal } from 'antd';
 import { toast } from 'react-toastify';
 import useSWRMutation from 'swr/mutation';
@@ -21,12 +21,24 @@ const AreasGoalForm = ({
   mode,
   companyId
 }) => {
-  console.log("🚀 ~ AreasGoalForm ~ initialValues:", initialValues)
   const [form] = Form.useForm();
-  const isSettingInitialValues = useRef(false);
   
   // Watch period value from form
   const periodValue = Form.useWatch(PERIOD_ID, form);
+
+  // Transform initialValues for form compatibility
+  const formInitialValues = initialValues ? {
+    ...initialValues,
+    percentage: (() => {
+      if (!initialValues.percentage) return undefined;
+      // Handle percentage values - remove % symbol and convert to number
+      const percentageValue = String(initialValues.percentage).replace('%', '');
+      const numValue = parseInt(percentageValue, 10);
+      return isNaN(numValue) ? undefined : numValue;
+    })(),
+    period_id: initialValues.period?.id || initialValues.period_id, // Handle both period object and period_id
+    department_id: initialValues.area?.id || initialValues.department_id, // Handle both area object and area_id
+  } : {};
 
   // SWR mutation for creating/updating area goals
   const { trigger: saveGoal, isMutating } = useSWRMutation(
@@ -42,46 +54,11 @@ const AreasGoalForm = ({
     }
   );
 
-  useEffect(() => {
-    if (visible) {
-      if (initialValues) {
-        isSettingInitialValues.current = true;
-        // Transform initialValues to match form field names
-        const formValues = {
-          ...initialValues,
-          percentage: parseInt(initialValues.percentage, 10), // Ensure percentage is an integer
-          period_id: initialValues.period?.id || initialValues.period_id, // Handle both period object and period_id
-          department_id: initialValues.area?.id || initialValues.department_id, // Handle both area object and area_id
-        };
-        
-        // Set values in the next tick to ensure proper timing
-        setTimeout(() => {
-          form.setFieldsValue(formValues);
-          // Reset flag after form is set
-          setTimeout(() => {
-            isSettingInitialValues.current = false;
-          }, 50);
-        }, 0);
-      } else {
-        form.resetFields();
-        isSettingInitialValues.current = false;
-      }
-    }
-  }, [visible, initialValues, form]);
-
-  // Clear area when period changes (but not when setting initial values)
-  useEffect(() => {
-    if (visible && !isSettingInitialValues.current) {
-      form.setFieldValue('department_id', undefined);
-    }
-  }, [periodValue, form, visible]);
-
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
       
       const method = mode === 'add' ? 'POST' : 'PUT';
-      console.log("🚀 ~ handleSubmit ~ method:", method)
       const goalId = mode === 'edit' ? initialValues?.id : null;
       
       await saveGoal({ values, goalId, method });
@@ -108,6 +85,7 @@ const AreasGoalForm = ({
 
   return (
     <Modal
+      key={`modal-${mode}-${initialValues?.id || 'new'}`}
       title={title}
       open={visible}
       onOk={handleSubmit}
@@ -117,9 +95,11 @@ const AreasGoalForm = ({
       cancelText="Cancelar"
     >
       <Form
+        key={`${mode}-${initialValues?.id || 'new'}`}
         form={form}
         layout="vertical"
         preserve={false}
+        initialValues={formInitialValues}
       >
         <PeriodSelect
           name={PERIOD_ID}
