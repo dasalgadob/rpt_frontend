@@ -10,7 +10,8 @@ import {
   Space, 
   Tag, 
   Tooltip,
-  Flex
+  Flex,
+  message
 } from 'antd';
 import { 
   PlusOutlined, 
@@ -19,26 +20,23 @@ import {
   SearchOutlined 
 } from '@ant-design/icons';
 import { fetcher } from '../../../../constants';
+import PeriodsForm from './PeriodsForm';
+import { useCompanyPeriods, usePeriodOperations } from '../../../../hooks/usePeriods';
 
 const PeriodsPage = () => {
   const params = useParams();
   const { id } = params; // Company ID from URL
   const [searchValue, setSearchValue] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalMode, setModalMode] = useState('add'); // 'add' or 'edit'
+  const [selectedPeriod, setSelectedPeriod] = useState(null);
 
-  // SWR call to fetch periods data
-  const { data: response, error, isLoading } = useSWR(
-    id ? `${process.env.NEXT_PUBLIC_API_URL}/companies/${id}/periods` : null,
-    (url) => fetcher(url, { method: 'GET' })
-  );
+  // Usar hook personalizado de SWR para períodos
+  const { periods: periodsData, isLoading, isError: error, mutate } = useCompanyPeriods(id);
+  const { deletePeriod } = usePeriodOperations();
 
-  // Transform the response data to component format
-  const allPeriods = response?.data?.map(item => ({
-    id: item.id,
-    name: item.attributes.name,
-    type: item.attributes.period_type || 'N/A',
-    status: item.attributes.status || 'N/A',
-    companyId: item.relationships?.company?.data?.id
-  })) || [];
+  // Los datos ya vienen procesados del hook
+  const allPeriods = periodsData || [];
 
   // Handle search/filter
   const handleSearch = (value) => {
@@ -79,15 +77,28 @@ const PeriodsPage = () => {
         if (!status || status === 'N/A') {
           return <Tag color="default">N/A</Tag>;
         }
-        const color = status === 'Abierto' ? 'cyan' : 'volcano';
+        // Manejar tanto mayúsculas como minúsculas
+        const statusLower = status.toLowerCase();
+        let color = 'default';
+        
+        if (statusLower === 'abierto') {
+          color = 'green';
+        } else if (statusLower === 'cerrado') {
+          color = 'volcano';
+        }
+        
         return <Tag color={color}>{status}</Tag>;
       },
       filters: [
-        { text: 'Abierto', value: 'Abierto' },
-        { text: 'Cerrado', value: 'Cerrado' },
+        { text: 'Abierto', value: 'abierto' },
+        { text: 'Cerrado', value: 'cerrado' },
         { text: 'N/A', value: 'N/A' },
       ],
-      onFilter: (value, record) => (record.status || 'N/A') === value,
+      onFilter: (value, record) => {
+        const recordStatus = (record.status || 'N/A').toLowerCase();
+        const filterValue = value.toLowerCase();
+        return recordStatus === filterValue;
+      },
     },
     {
       title: 'Acciones',
@@ -116,18 +127,50 @@ const PeriodsPage = () => {
 
   // Action handlers
   const handleEdit = (period) => {
-    console.log('Edit period:', period);
-    // TODO: Implement edit functionality
+    setModalMode('edit');
+    setSelectedPeriod(period);
+    setModalVisible(true);
   };
 
-  const handleDelete = (period) => {
-    console.log('Delete period:', period);
-    // TODO: Implement delete functionality
+  const handleDelete = async (period) => {
+    const confirmDelete = window.confirm(
+      `¿Está seguro de eliminar el período "${period.name}"?\n\nEsta acción no se puede deshacer.`
+    );
+    
+    if (confirmDelete) {
+      try {
+        const result = await deletePeriod(id, period.id);
+        
+        if (result.success) {
+          message.success(`Período "${period.name}" eliminado correctamente`);
+          // Revalidar los datos después de eliminar
+          await mutate();
+        } else {
+          message.error(result.error || 'Error al eliminar el período');
+        }
+      } catch (error) {
+        console.error('Error inesperado en eliminación:', error);
+        message.error('Error inesperado al eliminar el período');
+      }
+    }
   };
 
   const handleAdd = () => {
-    console.log('Add new period');
-    // TODO: Implement add functionality
+    setModalMode('add');
+    setSelectedPeriod(null);
+    setModalVisible(true);
+  };
+
+  const handleModalCancel = () => {
+    setModalVisible(false);
+    setSelectedPeriod(null);
+  };
+
+  const handleFormSuccess = () => {
+    // Revalidar los datos después de la operación exitosa
+    mutate();
+    setModalVisible(false);
+    setSelectedPeriod(null);
   };
 
   // Loading and error states
@@ -196,6 +239,16 @@ const PeriodsPage = () => {
             `${range[0]}-${range[1]} de ${total} períodos`,
         }}
         loading={isLoading}
+      />
+
+      {/* Modal para crear/editar períodos */}
+      <PeriodsForm
+        visible={modalVisible}
+        onCancel={handleModalCancel}
+        onSuccess={handleFormSuccess}
+        initialValues={selectedPeriod}
+        mode={modalMode}
+        companyId={id}
       />
     </div>
   );
