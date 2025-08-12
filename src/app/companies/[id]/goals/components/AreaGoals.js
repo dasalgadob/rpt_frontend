@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Table, Button, Space, Tag, Card, Col, Form } from 'antd';
+import { Table, Button, Space, Tag, Card, Col, Form, Row } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import useSWR from 'swr';
 import { fetcher } from '../../../../../constants';
@@ -9,11 +9,13 @@ import CorporateGoalForm from './CorporateGoalForm';
 import PeriodSelect from './PeriodSelect';
 import { toast } from 'react-toastify';
 import AreasGoalForm from './AreasGoalForm';
+import AreaFilterSelect from './AreaFilterSelect';
 
 const AreaGoals = ({ companyId }) => {
   const [filterForm] = Form.useForm();
   const [periodFilter, setPeriodFilter] = useState(null);
-  
+  const [departmentFilter, setDepartmentFilter] = useState(null);
+
   const [modalState, setModalState] = useState({
     visible: false,
     mode: 'add', // 'add' or 'edit'
@@ -21,15 +23,18 @@ const AreaGoals = ({ companyId }) => {
   });
 
   const { data: response, error, isLoading, mutate } = useSWR(
-    companyId ? `${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/department_goals${periodFilter ? `?period_id=${periodFilter}` : ''}` : null,
+    companyId
+      ? `${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/department_goals`
+        + `${periodFilter ? `?period_id=${periodFilter}` : ''}`
+        + `${departmentFilter ? `${periodFilter ? '&' : '?'}department_id=${departmentFilter}` : ''}`
+      : null,
     (url) => fetcher(url, { method: 'GET' })
   );
 
   // Watch for form changes and trigger SWR revalidation
   const onFilterFormChange = (changedValues, allValues) => {
-    if ('period' in changedValues) {
-      setPeriodFilter(allValues.period);
-    }
+    if ('period' in changedValues) setPeriodFilter(allValues.period);
+    if ('department_id' in changedValues) setDepartmentFilter(allValues.department_id);
   };
 
   // Transform the response data to component format
@@ -154,14 +159,23 @@ const AreaGoals = ({ companyId }) => {
   return (
     <div>
       <Form form={filterForm} onValuesChange={onFilterFormChange}>
-        <Col span={4}>
-          <PeriodSelect
+        <Row gutter={16}>
+          <Col span={6}>
+            <PeriodSelect
               name="period"
               companyId={companyId}
               placeholder="Filtrar por periodo"
-              selectFirstAsDefault={true}
+            selectFirstAsDefault={true}
           />
         </Col>
+        <Col span={6}>
+          <AreaFilterSelect
+            name="department_id"
+            companyId={companyId}
+            placeholder="Filtrar por área"
+          />
+        </Col>
+        </Row>
       </Form>
       <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h3 style={{ margin: 0 }}>Metas Corporativas</h3>
