@@ -15,7 +15,9 @@
     "next": "15.4.6",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "swr": "^2.3.4"
+    "swr": "^2.3.4",
+    "react-toastify": "^11.0.5",
+    "zustand": "^4.0.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
