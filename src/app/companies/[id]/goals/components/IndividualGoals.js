@@ -1,137 +1,139 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Table, Button, Space, Tag, Card, message, Select, Input } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
+import { Table, Button, Space, Tag, Card, Col, Form, Row } from 'antd';
+import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import useSWR from 'swr';
 import { fetcher } from '../../../../../constants';
-
-const { Option } = Select;
-const { Search } = Input;
+import CorporateGoalForm from './CorporateGoalForm';
+import PeriodSelect from './PeriodSelect';
+import { toast } from 'react-toastify';
+import AreasGoalForm from './AreasGoalForm';
+import AreaFilterSelect from './AreaFilterSelect';
+import PositionFilterSelect from './PositionFilterSelect';
+import IndividualGoalForm from './IndividualGoalForm';
 
 const IndividualGoals = ({ companyId }) => {
-  const [searchText, setSearchText] = useState('');
-  
+  const [filterForm] = Form.useForm();
+  const [periodFilter, setPeriodFilter] = useState(null);
+  const [departmentFilter, setDepartmentFilter] = useState(null);
+  const [positionFilter, setPositionFilter] = useState(null);
+
+  const [modalState, setModalState] = useState({
+    visible: false,
+    mode: 'add', // 'add' or 'edit'
+    selectedRecord: null
+  });
+
   const { data: response, error, isLoading, mutate } = useSWR(
-    companyId ? `${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/individual-goals` : null,
+    companyId
+      ? `${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/position_goals`
+        + `${periodFilter ? `?period_id=${periodFilter}` : ''}`
+        + `${departmentFilter ? `${periodFilter ? '&' : '?'}department_id=${departmentFilter}` : ''}`
+        + `${positionFilter ? `${periodFilter || departmentFilter ? '&' : '?'}position_id=${positionFilter}` : ''}`
+      : null,
     (url) => fetcher(url, { method: 'GET' })
   );
 
+  // Watch for form changes and trigger SWR revalidation
+  const onFilterFormChange = (changedValues, allValues) => {
+    if ('period' in changedValues) setPeriodFilter(allValues.period);
+    if ('department_id' in changedValues) setDepartmentFilter(allValues.department_id);
+    if ('position_id' in changedValues) setPositionFilter(allValues.position_id);
+  };
+
   // Transform the response data to component format
-  const allGoals = response?.data?.map(item => ({
+  const goals = response?.data?.map(item => ({
     id: item.id,
-    name: item.attributes.name,
-    description: item.attributes.description,
-    employeeName: item.attributes.employee_name,
-    employeePosition: item.attributes.employee_position,
-    department: item.attributes.department,
-    status: item.attributes.status || 'Active',
-    target: item.attributes.target,
-    current: item.attributes.current || 0,
-    progress: item.attributes.progress || 0,
-    dueDate: item.attributes.due_date,
+    department: item.attributes?.department_name,
+    department_id: item.attributes?.department_id,
+    description: item.attributes?.description,
+    percentage: item.attributes?.percentage,
+    score: item.attributes?.score,
+    period: item.attributes?.period_name,
+    position: item.attributes?.position_name,
+    position_id: item.attributes?.position_id
   })) || [];
 
   const handleEdit = (record) => {
-    message.info(`Editando meta individual: ${record.name}`);
-    // TODO: Implement edit functionality
+    setModalState({
+      visible: true,
+      mode: 'edit',
+      selectedRecord: record
+    });
   };
 
   const handleDelete = (record) => {
-    message.info(`Eliminando meta individual: ${record.name}`);
+    toast.info(`Eliminando meta corporativa: ${record.id}`);
     // TODO: Implement delete functionality
   };
 
   const handleAdd = () => {
-    message.info('Añadiendo nueva meta individual');
-    // TODO: Implement add functionality
+    setModalState({
+      visible: true,
+      mode: 'add',
+      selectedRecord: null
+    });
   };
 
-  // Filter goals based on search text
-  const filteredGoals = allGoals?.filter(goal =>
-    !searchText || 
-    goal.name?.toLowerCase().includes(searchText.toLowerCase()) ||
-    goal.employeeName?.toLowerCase().includes(searchText.toLowerCase()) ||
-    goal.department?.toLowerCase().includes(searchText.toLowerCase())
-  ) || [];
+  const handleModalCancel = () => {
+    setModalState(prev => ({
+      ...prev,
+      visible: false,
+      selectedRecord: null
+    }));
+  };
 
-  // Get unique departments for filtering
-  const departments = allGoals ? [...new Set(allGoals.map(g => g.department).filter(Boolean))] : [];
+  const handleModalSuccess = () => {
+    mutate(); // Refresh the data
+    setModalState({
+      visible: false,
+      mode: 'add',
+      selectedRecord: null
+    });
+  };
 
   const columns = [
     {
-      title: 'Meta',
-      dataIndex: 'name',
-      key: 'name',
-      render: (text) => <strong>{text}</strong>,
-    },
-    {
-      title: 'Empleado',
-      dataIndex: 'employeeName',
-      key: 'employeeName',
-      render: (name, record) => (
-        <div>
-          <div>{name || 'N/A'}</div>
-          <small style={{ color: '#666' }}>{record.employeePosition || 'N/A'}</small>
-        </div>
-      ),
-    },
-    {
-      title: 'Departamento',
+      title: 'Area',
       dataIndex: 'department',
       key: 'department',
-      render: (department) => department || 'N/A',
-      filters: departments.map(dept => ({ text: dept, value: dept })),
-      onFilter: (value, record) => record.department === value,
+      render: (text) => text || 'N/A',
+      sorter: (a, b) => (a.department?.name || 0) - (b.department?.name || 0),
+    },
+    {
+      title: 'Posicion',
+      dataIndex: 'position',
+      key: 'position',
+      render: (text) => text || 'N/A',
+      sorter: (a, b) => (a.department?.name || 0) - (b.department?.name || 0),
     },
     {
       title: 'Descripción',
       dataIndex: 'description',
       key: 'description',
       ellipsis: true,
+      render: (text) => text || 'N/A',
     },
     {
-      title: 'Meta',
-      dataIndex: 'target',
-      key: 'target',
-      render: (target) => target || 'N/A',
+      title: 'Porcentaje',
+      dataIndex: 'percentage',
+      key: 'percentage',
+      render: (percentage) => percentage ? `${percentage}%` : 'N/A',
+      sorter: (a, b) => (a.percentage || 0) - (b.percentage || 0),
     },
     {
-      title: 'Actual',
-      dataIndex: 'current',
-      key: 'current',
-      render: (current) => current || 0,
+      title: 'Evaluación',
+      dataIndex: 'score',
+      key: 'score',
+      render: (score) => score || 'N/A',
+      sorter: (a, b) => (a.score || 0) - (b.score || 0),
     },
     {
-      title: 'Progreso',
-      dataIndex: 'progress',
-      key: 'progress',
-      render: (progress) => {
-        const percent = progress || 0;
-        const color = percent >= 80 ? 'green' : percent >= 50 ? 'orange' : 'red';
-        return <Tag color={color}>{percent}%</Tag>;
-      },
-    },
-    {
-      title: 'Fecha Límite',
-      dataIndex: 'dueDate',
-      key: 'dueDate',
-      render: (date) => date || 'N/A',
-    },
-    {
-      title: 'Estado',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status) => {
-        const color = status === 'Active' ? 'green' : status === 'Completed' ? 'blue' : 'red';
-        return <Tag color={color}>{status}</Tag>;
-      },
-      filters: [
-        { text: 'Active', value: 'Active' },
-        { text: 'Completed', value: 'Completed' },
-        { text: 'Paused', value: 'Paused' },
-      ],
-      onFilter: (value, record) => record.status === value,
+      title: 'Periodo',
+      dataIndex: 'period',
+      key: 'period',
+      render: (text) => text || 'N/A',
     },
     {
       title: 'Acciones',
@@ -160,7 +162,7 @@ const IndividualGoals = ({ companyId }) => {
     return (
       <Card>
         <div style={{ textAlign: 'center', padding: '50px' }}>
-          <h3 style={{ color: '#ff4d4f' }}>Error cargando metas individuales</h3>
+          <h3 style={{ color: '#ff4d4f' }}>Error cargando metas corporativas</h3>
           <p>{error.message}</p>
           <Button onClick={() => mutate()}>Reintentar</Button>
         </div>
@@ -170,9 +172,35 @@ const IndividualGoals = ({ companyId }) => {
 
   return (
     <div>
-      <div style={{ marginBottom: 16 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <h3 style={{ margin: 0 }}>Metas Individuales</h3>
+      <Form form={filterForm} onValuesChange={onFilterFormChange}>
+        <Row gutter={16}>
+          <Col span={6}>
+            <PeriodSelect
+              name="period"
+              companyId={companyId}
+              placeholder="Filtrar por periodo"
+            selectFirstAsDefault={true}
+          />
+        </Col>
+        <Col span={6}>
+          <AreaFilterSelect
+            name="department_id"
+            companyId={companyId}
+            placeholder="Filtrar por área"
+          />
+        </Col>
+        <Col span={6}>
+          <PositionFilterSelect
+            name="position_id"
+            companyId={companyId}
+            placeholder="Filtrar por posición"
+          />
+        </Col>
+        </Row>
+      </Form>
+      <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h3 style={{ margin: 0 }}>Metas Corporativas</h3>
+        <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
           <Button
             type="primary"
             icon={<PlusOutlined />}
@@ -181,18 +209,11 @@ const IndividualGoals = ({ companyId }) => {
             Añadir Meta
           </Button>
         </div>
-        
-        <Search
-          placeholder="Buscar por meta, empleado o departamento..."
-          onChange={(e) => setSearchText(e.target.value)}
-          style={{ width: 300 }}
-          allowClear
-        />
       </div>
       
       <Table
         columns={columns}
-        dataSource={filteredGoals}
+        dataSource={goals}
         loading={isLoading}
         rowKey="id"
         pagination={{
@@ -202,7 +223,16 @@ const IndividualGoals = ({ companyId }) => {
           showTotal: (total, range) =>
             `${range[0]}-${range[1]} de ${total} metas`,
         }}
-        scroll={{ x: 1200 }}
+      />
+
+      <IndividualGoalForm
+        visible={modalState.visible}
+        onCancel={handleModalCancel}
+        onSuccess={handleModalSuccess}
+        initialValues={modalState.selectedRecord}
+        title={modalState.mode === 'add' ? 'Añadir Meta Individual' : 'Editar Meta Individual'}
+        mode={modalState.mode}
+        companyId={companyId}
       />
     </div>
   );
