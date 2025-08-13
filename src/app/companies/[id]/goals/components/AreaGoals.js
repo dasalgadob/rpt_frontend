@@ -209,7 +209,7 @@ const AreaGoals = ({ companyId }) => {
         onCancel={handleModalCancel}
         onSuccess={handleModalSuccess}
         initialValues={modalState.selectedRecord}
-        title={modalState.mode === 'add' ? 'Añadir Meta Corporativa' : 'Editar Meta Corporativa'}
+        title={modalState.mode === 'add' ? 'Añadir Meta de Área' : 'Editar Meta de Área'}
         mode={modalState.mode}
         companyId={companyId}
       />
