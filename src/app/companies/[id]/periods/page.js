@@ -101,6 +101,20 @@ const PeriodsPage = () => {
       },
     },
     {
+      title: '% Mínimo de Utilidad',
+      dataIndex: 'company_profit_percentage',
+      key: 'company_profit_percentage',
+      align: 'center', // <-- Centra el contenido
+      render: (value) => value !== undefined && value !== null ? `${value}%` : 'No definido',
+    },
+    {
+      title: 'Calificación Mínima de Funcionario',
+      dataIndex: 'minimum_score_employee',
+      key: 'minimum_score_employee',
+      align: 'center', // <-- Centra el contenido
+      render: (value) => value !== undefined && value !== null ? value : 'No definido',
+    },
+    {
       title: 'Acciones',
       key: 'actions',
       render: (_, record) => (
