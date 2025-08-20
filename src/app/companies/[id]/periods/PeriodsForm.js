@@ -39,8 +39,10 @@ const PeriodsForm = ({
         // Mapear los datos correctamente para el formulario
         const formData = {
           name: initialValues.name,
-          period_type: initialValues.type, // El backend envía 'type' pero el form espera 'period_type'
-          status: initialValues.status
+          period_type: initialValues.type,
+          status: initialValues.status,
+          company_profit_percentage: initialValues.company_profit_percentage,
+          minimum_score_employee: initialValues.minimum_score_employee,
         };
         
         console.log('Datos mapeados para el formulario:', formData);
@@ -64,7 +66,9 @@ const PeriodsForm = ({
       const periodData = {
         name: values.name,
         period_type: values.period_type,
-        status: values.status
+        status: values.status,
+        company_profit_percentage: values.company_profit_percentage,
+        minimum_score_employee: values.minimum_score_employee
       };
 
       console.log('Datos del periodo a enviar:', periodData);
@@ -197,6 +201,31 @@ const PeriodsForm = ({
               </Option>
             ))}
           </Select>
+        </Form.Item>
+
+        <Form.Item
+          name="company_profit_percentage"
+          label={<span style={{ fontWeight: 'bold' }}>% Mínimo de Utilidad</span>}
+        >
+          <Input
+            type="number"
+            min={0}
+            max={100}
+            placeholder="Ej: 88"
+            suffix="%"
+          />
+        </Form.Item>
+
+        <Form.Item
+          name="minimum_score_employee"
+          label={<span style={{ fontWeight: 'bold' }}>Calificación Mínima de Funcionario</span>}
+        >
+          <Input
+            type="number"
+            min={0}
+            max={100}
+            placeholder="Ej: 70"
+          />
         </Form.Item>
       </Form>
     </Modal>

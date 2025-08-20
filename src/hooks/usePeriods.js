@@ -31,7 +31,9 @@ export const useCompanyPeriods = (companyId) => {
         name: item.attributes?.name || 'Sin nombre',
         type: item.attributes?.period_type || 'N/A',
         status: item.attributes?.status || 'N/A',
-        companyId: item.relationships?.company?.data?.id
+        companyId: item.relationships?.company?.data?.id,
+        company_profit_percentage: item.attributes?.company_profit_percentage ?? null,
+        minimum_score_employee: item.attributes?.minimum_score_employee ?? null,
       }));
     } else if (data.data && Array.isArray(data.data)) {
       // Si data tiene una propiedad 'data' que es un array
@@ -40,7 +42,9 @@ export const useCompanyPeriods = (companyId) => {
         name: item.attributes?.name || 'Sin nombre',
         type: item.attributes?.period_type || 'N/A',
         status: item.attributes?.status || 'N/A',
-        companyId: item.relationships?.company?.data?.id
+        companyId: item.relationships?.company?.data?.id,
+        company_profit_percentage: item.attributes?.company_profit_percentage ?? null,
+        minimum_score_employee: item.attributes?.minimum_score_employee ?? null,
       }));
     }
     
@@ -90,7 +94,9 @@ export const usePeriodOperations = () => {
         period: {
           name: periodData.name,
           period_type: periodData.period_type,
-          status: periodData.status
+          status: periodData.status,
+          company_profit_percentage: periodData.company_profit_percentage,
+          minimum_score_employee: periodData.minimum_score_employee
         }
       };
 
@@ -122,7 +128,9 @@ export const usePeriodOperations = () => {
         period: {
           name: periodData.name,
           period_type: periodData.period_type,
-          status: periodData.status
+          status: periodData.status,
+          company_profit_percentage: periodData.company_profit_percentage,
+          minimum_score_employee: periodData.minimum_score_employee
         }
       };
 
