@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Table, Button, Space, Tag, Card, Col, Form } from 'antd';
+import { Table, Button, Space, Tag, Card, Col, Form, Alert } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import useSWR from 'swr';
 import { fetcher } from '../../../../../constants';
@@ -41,6 +41,47 @@ const CorporateGoals = ({ companyId }) => {
     score: item.attributes?.score,
     period: item.attributes?.period,
   })) || [];
+
+  // Calculate total percentage and generate alert message
+  const totalPercentage = goals.reduce((sum, goal) => sum + (goal.percentage || 0), 0);
+  
+  const getPercentageAlert = () => {
+    if (goals.length === 0) return null;
+    
+    if (totalPercentage > 100) {
+      return (
+        <Alert
+          message="⚠️ Advertencia: Porcentajes exceden el 100%"
+          description={`La suma total de porcentajes es ${totalPercentage.toFixed(1)}%. Los porcentajes de las metas corporativas deben sumar exactamente 100%.`}
+          type="warning"
+          showIcon
+          style={{ marginBottom: 16 }}
+        />
+      );
+    } else if (totalPercentage < 100) {
+      return (
+        <Alert
+          message="ℹ️ Información: Porcentajes incompletos"
+          description={`La suma total de porcentajes es ${totalPercentage.toFixed(1)}%. Los porcentajes de las metas corporativas deben sumar exactamente 100%. Faltan ${(100 - totalPercentage).toFixed(1)} puntos porcentuales.`}
+          type="info"
+          showIcon
+          style={{ marginBottom: 16 }}
+        />
+      );
+    } else if (totalPercentage === 100) {
+      return (
+        <Alert
+          message="✅ Perfecto: Porcentajes balanceados"
+          description={`La suma total de porcentajes es exactamente 100%. Las metas corporativas están correctamente balanceadas.`}
+          type="success"
+          showIcon
+          style={{ marginBottom: 16 }}
+        />
+      );
+    }
+    
+    return null;
+  };
 
   const handleEdit = (record) => {
     setModalState({
@@ -162,9 +203,15 @@ const CorporateGoals = ({ companyId }) => {
           />
         </Col>
       </Form>
+      
+      {getPercentageAlert()}
+      
       <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h3 style={{ margin: 0 }}>Metas Corporativas</h3>
         <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+          <div style={{ fontSize: '14px', color: '#666' }}>
+            Total: {goals.length} metas | Suma de porcentajes: {totalPercentage.toFixed(1)}%
+          </div>
           <Button
             type="primary"
             icon={<PlusOutlined />}
