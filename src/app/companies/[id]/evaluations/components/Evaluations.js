@@ -1,100 +1,60 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Table, Button, Space, Card, Progress } from 'antd';
+import { Table, Button, Space, Card, Progress, Form, Row, Col } from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import useSWR from 'swr';
+import { fetcher } from '../../../../../constants';
 import { toast } from 'react-toastify';
+import PeriodSelect from '../../goals/components/PeriodSelect';
 
 const Evaluations = ({ companyId }) => {
+  const [filterForm] = Form.useForm();
+  const [periodFilter, setPeriodFilter] = useState(null);
+  
   const [modalState, setModalState] = useState({
     visible: false,
     mode: 'add', // 'add' or 'edit'
     selectedRecord: null
   });
 
-  // Test data for the evaluations table
-  const testEvaluations = [
-    {
-      id: 1,
-      employee_id: 'EMP001',
-      nombre: 'Juan Pérez',
-      area: 'Recursos Humanos',
-      cargo: 'Gerente de RRHH',
-      tipo_posicion: 'Gerencial',
-      porcentaje_metas_corporativas: 85,
-      puntuacion_metas_corporativas: 84,
-      porcentaje_metas_area: 90,
-      evaluacion_metas_area: 89,
-      porcentaje_metas_individuales: 88,
-      evaluacion_metas_individuales: 87,
-      puntuacion_total: 87,
-      compensacion_variable: 1.45
-    },
-    {
-      id: 2,
-      employee_id: 'EMP002',
-      nombre: 'María García',
-      area: 'Ventas',
-      cargo: 'Ejecutiva de Ventas',
-      tipo_posicion: 'Operativo',
-      porcentaje_metas_corporativas: 92,
-      puntuacion_metas_corporativas: 91,
-      porcentaje_metas_area: 95,
-      evaluacion_metas_area: 94,
-      porcentaje_metas_individuales: 91,
-      evaluacion_metas_individuales: 90,
-      puntuacion_total: 92,
-      compensacion_variable: 2.15
-    },
-    {
-      id: 3,
-      employee_id: 'EMP003',
-      nombre: 'Carlos López',
-      area: 'Tecnología',
-      cargo: 'Desarrollador Senior',
-      tipo_posicion: 'Técnico',
-      porcentaje_metas_corporativas: 78,
-      puntuacion_metas_corporativas: 76,
-      porcentaje_metas_area: 82,
-      evaluacion_metas_area: 81,
-      porcentaje_metas_individuales: 85,
-      evaluacion_metas_individuales: 84,
-      puntuacion_total: 80,
-      compensacion_variable: 0.98
-    },
-    {
-      id: 4,
-      employee_id: 'EMP004',
-      nombre: 'Ana Rodríguez',
-      area: 'Marketing',
-      cargo: 'Coordinadora de Marketing',
-      tipo_posicion: 'Supervisorio',
-      porcentaje_metas_corporativas: 87,
-      puntuacion_metas_corporativas: 86,
-      porcentaje_metas_area: 89,
-      evaluacion_metas_area: 88,
-      porcentaje_metas_individuales: 86,
-      evaluacion_metas_individuales: 85,
-      puntuacion_total: 86,
-      compensacion_variable: 1.78
-    },
-    {
-      id: 5,
-      employee_id: 'EMP005',
-      nombre: 'Luis Martínez',
-      area: 'Finanzas',
-      cargo: 'Analista Financiero',
-      tipo_posicion: 'Operativo',
-      porcentaje_metas_corporativas: 83,
-      puntuacion_metas_corporativas: 82,
-      porcentaje_metas_area: 86,
-      evaluacion_metas_area: 85,
-      porcentaje_metas_individuales: 89,
-      evaluacion_metas_individuales: 88,
-      puntuacion_total: 85,
-      compensacion_variable: 1.32
+  const { data: response, error, isLoading, mutate } = useSWR(
+    companyId && periodFilter
+      ? `${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/employee_evaluations?period_id=${periodFilter}`
+      : null,
+    (url) => fetcher(url, { method: 'GET' })
+  );
+
+  // Watch for form changes and trigger SWR revalidation
+  const onFilterFormChange = (changedValues, allValues) => {
+    if ('period' in changedValues) {
+      setPeriodFilter(allValues.period);
     }
-  ];
+  };
+
+  // Transform the response data to component format
+  const evaluations = response?.data?.map(item => ({
+    id: item.id,
+    employee_id: item.attributes?.employee?.employee_id,
+    nombre: item.attributes?.employee?.name,
+    area: item.attributes?.employee?.department_name,
+    cargo: item.attributes?.employee?.position_name,
+    tipo_posicion: item.attributes?.employee?.position_type_name,
+    // Percentages with target values
+    corporate_percentage_result: parseFloat(item.attributes?.corporate_percentage_result || 0),
+    corporate_percentage_target: parseFloat(item.attributes?.position_type_weight_info?.corporate_percentage || 0),
+    department_percentage_result: parseFloat(item.attributes?.department_percentage_result || 0),
+    department_percentage_target: parseFloat(item.attributes?.position_type_weight_info?.department_percentage || 0),
+    position_percentage_result: parseFloat(item.attributes?.position_percentage_result || 0),
+    position_percentage_target: parseFloat(item.attributes?.position_type_weight_info?.position_percentage || 0),
+    // Score results for evaluations
+    department_score_result: parseFloat(item.attributes?.department_score_result || 0),
+    position_score_result: parseFloat(item.attributes?.position_score_result || 0),
+    // Overall evaluation score
+    evaluation_score: parseFloat(item.attributes?.evaluation_score || 0),
+    // Corporate score comes from general response
+    corporate_score: parseFloat(response?.corporate_score || 0),
+  })) || [];
 
   const handleEdit = (record) => {
     setModalState({
@@ -118,22 +78,19 @@ const Evaluations = ({ companyId }) => {
     return '#f5222d'; // Red
   };
 
-  // Helper function to render percentage with progress bar
-  const renderPercentage = (percentage) => (
+  // Helper function to render percentage with progress bar and target
+  const renderPercentageWithTarget = (result, target) => (
     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-      <Progress 
-        percent={percentage} 
-        size="small" 
-        style={{ width: 60 }} 
-        strokeColor={percentage >= 90 ? '#52c41a' : percentage >= 80 ? '#faad14' : '#f5222d'}
-      />
+      <span style={{ fontSize: '12px', fontWeight: 'bold' }}>
+        {result.toFixed(1)}% / {target.toFixed(0)}%
+      </span>
     </div>
   );
 
   // Helper function to render score with color
   const renderScore = (score) => (
     <span style={{ color: getScoreColor(score), fontWeight: 'bold' }}>
-      {score || 'N/A'}
+      {score ? score.toFixed(1) : 'N/A'}
     </span>
   );
 
@@ -168,7 +125,7 @@ const Evaluations = ({ companyId }) => {
       title: 'ID',
       dataIndex: 'employee_id',
       key: 'employee_id',
-      width: 80,
+      width: 120,
       fixed: 'left',
     },
     {
@@ -201,57 +158,53 @@ const Evaluations = ({ companyId }) => {
       render: (text) => text || 'N/A',
     },
     {
-      title: 'Porcentaje Metas Corporativas',
-      dataIndex: 'porcentaje_metas_corporativas',
-      key: 'porcentaje_metas_corporativas',
+      title: '% Metas Corporativas',
+      key: 'corporate_percentage',
       width: 180,
-      render: renderPercentage,
-      sorter: (a, b) => (a.porcentaje_metas_corporativas || 0) - (b.porcentaje_metas_corporativas || 0),
+      render: (_, record) => renderPercentageWithTarget(record.corporate_percentage_result, record.corporate_percentage_target),
+      sorter: (a, b) => (a.corporate_percentage_result || 0) - (b.corporate_percentage_result || 0),
     },
     {
       title: 'Puntuación Metas Corporativas',
-      dataIndex: 'puntuacion_metas_corporativas',
-      key: 'puntuacion_metas_corporativas',
+      key: 'corporate_score',
       width: 180,
-      render: renderScore,
-      sorter: (a, b) => (a.puntuacion_metas_corporativas || 0) - (b.puntuacion_metas_corporativas || 0),
+      render: (_, record) => renderScore(record.corporate_score),
+      sorter: (a, b) => (a.corporate_score || 0) - (b.corporate_score || 0),
     },
     {
-      title: 'Porcentaje Metas de Área',
-      dataIndex: 'porcentaje_metas_area',
-      key: 'porcentaje_metas_area',
+      title: '% Metas de Área',
+      key: 'department_percentage',
       width: 160,
-      render: renderPercentage,
-      sorter: (a, b) => (a.porcentaje_metas_area || 0) - (b.porcentaje_metas_area || 0),
+      render: (_, record) => renderPercentageWithTarget(record.department_percentage_result, record.department_percentage_target),
+      sorter: (a, b) => (a.department_percentage_result || 0) - (b.department_percentage_result || 0),
     },
     {
       title: 'Evaluación de Metas de Área',
-      dataIndex: 'evaluacion_metas_area',
-      key: 'evaluacion_metas_area',
+      dataIndex: 'department_score_result',
+      key: 'department_evaluation',
       width: 180,
       render: renderScore,
-      sorter: (a, b) => (a.evaluacion_metas_area || 0) - (b.evaluacion_metas_area || 0),
+      sorter: (a, b) => (a.department_score_result || 0) - (b.department_score_result || 0),
     },
     {
-      title: 'Porcentaje Metas Individuales',
-      dataIndex: 'porcentaje_metas_individuales',
-      key: 'porcentaje_metas_individuales',
+      title: '% Metas Individuales',
+      key: 'position_percentage',
       width: 180,
-      render: renderPercentage,
-      sorter: (a, b) => (a.porcentaje_metas_individuales || 0) - (b.porcentaje_metas_individuales || 0),
+      render: (_, record) => renderPercentageWithTarget(record.position_percentage_result, record.position_percentage_target),
+      sorter: (a, b) => (a.position_percentage_result || 0) - (b.position_percentage_result || 0),
     },
     {
       title: 'Evaluación Metas Individuales',
-      dataIndex: 'evaluacion_metas_individuales',
-      key: 'evaluacion_metas_individuales',
+      dataIndex: 'position_score_result',
+      key: 'position_evaluation',
       width: 180,
       render: renderScore,
-      sorter: (a, b) => (a.evaluacion_metas_individuales || 0) - (b.evaluacion_metas_individuales || 0),
+      sorter: (a, b) => (a.position_score_result || 0) - (b.position_score_result || 0),
     },
     {
       title: 'Puntuación Total',
-      dataIndex: 'puntuacion_total',
-      key: 'puntuacion_total',
+      dataIndex: 'evaluation_score',
+      key: 'evaluation_score',
       width: 120,
       render: (score) => (
         <span style={{ 
@@ -259,18 +212,10 @@ const Evaluations = ({ companyId }) => {
           fontWeight: 'bold', 
           fontSize: '16px'
         }}>
-          {score || 'N/A'}
+          {score ? score.toFixed(1) : 'N/A'}
         </span>
       ),
-      sorter: (a, b) => (a.puntuacion_total || 0) - (b.puntuacion_total || 0),
-    },
-    {
-      title: 'Compensación Variable',
-      dataIndex: 'compensacion_variable',
-      key: 'compensacion_variable',
-      width: 150,
-      render: renderCompensationVariable,
-      sorter: (a, b) => (a.compensacion_variable || 0) - (b.compensacion_variable || 0),
+      sorter: (a, b) => (a.evaluation_score || 0) - (b.evaluation_score || 0),
     },
     {
       title: 'Acciones',
@@ -299,19 +244,52 @@ const Evaluations = ({ companyId }) => {
     },
   ];
 
+  if (error) {
+    return (
+      <Card>
+        <div style={{ textAlign: 'center', padding: '50px' }}>
+          <h3 style={{ color: '#ff4d4f' }}>Error cargando evaluaciones</h3>
+          <p>{error.message}</p>
+          <Button onClick={() => mutate()}>Reintentar</Button>
+        </div>
+      </Card>
+    );
+  }
+
   return (
     <div>
+      <Form form={filterForm} onValuesChange={onFilterFormChange}>
+        <Row gutter={16}>
+          <Col span={6}>
+            <PeriodSelect
+              name="period"
+              companyId={companyId}
+              placeholder="Seleccionar periodo"
+              selectFirstAsDefault={true}
+            />
+          </Col>
+        </Row>
+      </Form>
+      
       <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h3 style={{ margin: 0 }}>Evaluaciones de Desempeño</h3>
         <div style={{ fontSize: '14px', color: '#666' }}>
-          Total de evaluaciones: {testEvaluations.length}
+          Total de evaluaciones: {evaluations.length}
+          {response?.corporate_score && (
+            <span style={{ marginLeft: 16 }}>
+              Puntuación Corporativa: <strong style={{ color: getScoreColor(response.corporate_score) }}>
+                {parseFloat(response.corporate_score).toFixed(1)}
+              </strong>
+            </span>
+          )}
         </div>
       </div>
       
       <Card>
         <Table
           columns={columns}
-          dataSource={testEvaluations}
+          dataSource={evaluations}
+          loading={isLoading}
           rowKey="id"
           scroll={{ x: 1650 }}
           pagination={{
