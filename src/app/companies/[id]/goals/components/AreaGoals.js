@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Table, Button, Space, Tag, Card, Col, Form, Row } from 'antd';
+import { Table, Button, Space, Tag, Card, Col, Form, Row, Alert } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import useSWR from 'swr';
 import { fetcher } from '../../../../../constants';
@@ -47,6 +47,87 @@ const AreaGoals = ({ companyId }) => {
     score: item.attributes?.score,
     period: item.attributes?.period,
   })) || [];
+
+  // Get department feedback from API response
+  const departmentsOk = response?.departments_ok || '';
+  const departmentsError = response?.departments_error || '';
+  
+  // Get total percentage and score from API response (when department is selected)
+  const apiTotalPercentage = parseFloat(response?.total_percentage || 0);
+  const apiTotalScore = parseFloat(response?.total_score || 0);
+  
+  const getPercentageAlert = () => {
+    // Only show percentage alerts when a department is selected and we have goals
+    if (!departmentFilter || goals.length === 0) return null;
+    
+    if (apiTotalPercentage > 100) {
+      return (
+        <Alert
+          message="⚠️ Advertencia: Porcentajes exceden el 100%"
+          description={`La suma total de porcentajes es ${apiTotalPercentage.toFixed(1)}%. Los porcentajes de las metas de área deben sumar exactamente 100%.`}
+          type="warning"
+          showIcon
+          style={{ marginBottom: 16 }}
+        />
+      );
+    } else if (apiTotalPercentage < 100) {
+      return (
+        <Alert
+          message="ℹ️ Información: Porcentajes incompletos"
+          description={`La suma total de porcentajes es ${apiTotalPercentage.toFixed(1)}%. Los porcentajes de las metas de área deben sumar exactamente 100%. Faltan ${(100 - apiTotalPercentage).toFixed(1)} puntos porcentuales.`}
+          type="info"
+          showIcon
+          style={{ marginBottom: 16 }}
+        />
+      );
+    } else if (apiTotalPercentage === 100) {
+      return (
+        <Alert
+          message="✅ Perfecto: Metas de Área tienen sus porcentajes al 100%"
+          description={`La suma total de porcentajes es exactamente 100%. Las metas de área están correctamente balanceadas. Puntuación total: ${apiTotalScore.toFixed(1)} puntos.`}
+          type="success"
+          showIcon
+          style={{ marginBottom: 16 }}
+        />
+      );
+    }
+    
+    return null;
+  };
+  
+  const getDepartmentFeedback = () => {
+    const feedbackComponents = [];
+    
+    // Display departments with completion status
+    if (departmentsOk) {
+      feedbackComponents.push(
+        <Alert
+          key="departments-ok"
+          message="✅ Estado de áreas"
+          description={departmentsOk}
+          type="info"
+          showIcon
+          style={{ marginBottom: 16 }}
+        />
+      );
+    }
+    
+    // Display departments with errors
+    if (departmentsError) {
+      feedbackComponents.push(
+        <Alert
+          key="departments-error"
+          message="⚠️ Áreas que requieren atención"
+          description={departmentsError}
+          type="warning"
+          showIcon
+          style={{ marginBottom: 16 }}
+        />
+      );
+    }
+    
+    return feedbackComponents;
+  };
 
   const handleEdit = (record) => {
     setModalState({
@@ -148,7 +229,7 @@ const AreaGoals = ({ companyId }) => {
     return (
       <Card>
         <div style={{ textAlign: 'center', padding: '50px' }}>
-          <h3 style={{ color: '#ff4d4f' }}>Error cargando metas corporativas</h3>
+          <h3 style={{ color: '#ff4d4f' }}>Error cargando metas de área</h3>
           <p>{error.message}</p>
           <Button onClick={() => mutate()}>Reintentar</Button>
         </div>
@@ -177,8 +258,15 @@ const AreaGoals = ({ companyId }) => {
         </Col>
         </Row>
       </Form>
+      
+      {/* Percentage validation alert for selected department */}
+      {getPercentageAlert()}
+      
+      {/* Department feedback messages */}
+      {getDepartmentFeedback()}
+      
       <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h3 style={{ margin: 0 }}>Metas Corporativas</h3>
+        <h3 style={{ margin: 0 }}>Metas de Área</h3>
         <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
           <Button
             type="primary"

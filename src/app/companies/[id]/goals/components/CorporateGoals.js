@@ -42,37 +42,38 @@ const CorporateGoals = ({ companyId }) => {
     period: item.attributes?.period,
   })) || [];
 
-  // Calculate total percentage and generate alert message
-  const totalPercentage = goals.reduce((sum, goal) => sum + (goal.percentage || 0), 0);
+  // Get total percentage and score from API response
+  const apiTotalPercentage = parseFloat(response?.total_percentage || 0);
+  const apiTotalScore = parseFloat(response?.total_score || 0);
   
   const getPercentageAlert = () => {
     if (goals.length === 0) return null;
     
-    if (totalPercentage > 100) {
+    if (apiTotalPercentage > 100) {
       return (
         <Alert
           message="⚠️ Advertencia: Porcentajes exceden el 100%"
-          description={`La suma total de porcentajes es ${totalPercentage.toFixed(1)}%. Los porcentajes de las metas corporativas deben sumar exactamente 100%.`}
+          description={`La suma total de porcentajes es ${apiTotalPercentage.toFixed(1)}%. Los porcentajes de las metas corporativas deben sumar exactamente 100%.`}
           type="warning"
           showIcon
           style={{ marginBottom: 16 }}
         />
       );
-    } else if (totalPercentage < 100) {
+    } else if (apiTotalPercentage < 100) {
       return (
         <Alert
           message="ℹ️ Información: Porcentajes incompletos"
-          description={`La suma total de porcentajes es ${totalPercentage.toFixed(1)}%. Los porcentajes de las metas corporativas deben sumar exactamente 100%. Faltan ${(100 - totalPercentage).toFixed(1)} puntos porcentuales.`}
+          description={`La suma total de porcentajes es ${apiTotalPercentage.toFixed(1)}%. Los porcentajes de las metas corporativas deben sumar exactamente 100%. Faltan ${(100 - apiTotalPercentage).toFixed(1)} puntos porcentuales.`}
           type="info"
           showIcon
           style={{ marginBottom: 16 }}
         />
       );
-    } else if (totalPercentage === 100) {
+    } else if (apiTotalPercentage === 100) {
       return (
         <Alert
           message="✅ Perfecto: Porcentajes balanceados"
-          description={`La suma total de porcentajes es exactamente 100%. Las metas corporativas están correctamente balanceadas.`}
+          description={`La suma total de porcentajes es exactamente 100%. Las metas corporativas están correctamente balanceadas. Puntuación total: ${apiTotalScore.toFixed(1)} puntos.`}
           type="success"
           showIcon
           style={{ marginBottom: 16 }}
@@ -207,10 +208,26 @@ const CorporateGoals = ({ companyId }) => {
       {getPercentageAlert()}
       
       <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h3 style={{ margin: 0 }}>Metas Corporativas</h3>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <h3 style={{ margin: 0 }}>Metas Corporativas</h3>
+          {apiTotalPercentage === 100 && (
+            <div style={{ 
+              fontSize: '16px', 
+              fontWeight: 'bold', 
+              color: '#52c41a',
+              padding: '4px 12px',
+              backgroundColor: '#f6ffed',
+              border: '1px solid #b7eb8f',
+              borderRadius: '6px'
+            }}>
+              📊 Puntuación Total: {apiTotalScore.toFixed(1)}
+            </div>
+          )}
+        </div>
         <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
           <div style={{ fontSize: '14px', color: '#666' }}>
-            Total: {goals.length} metas | Suma de porcentajes: {totalPercentage.toFixed(1)}%
+            Total: {goals.length} metas | Suma de porcentajes: {apiTotalPercentage.toFixed(1)}%
+            {apiTotalPercentage === 100 && ` | Puntuación: ${apiTotalScore.toFixed(1)}`}
           </div>
           <Button
             type="primary"
