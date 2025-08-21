@@ -8,6 +8,7 @@ import { fetcher } from '../../../../../constants';
 import PeriodSelect from './PeriodSelect';
 import AreaSelect from './AreaSelect';
 import PositionSelect from './PositionSelect';
+import EmployeeSelect from './EmployeeSelect';
 
 const { Option } = Select;
 
@@ -130,7 +131,12 @@ const IndividualGoalForm = ({
           placeholder="Seleccionar periodo"
           rules={[{ required: true, message: 'Por favor ingrese el periodo' }]}
         />
-
+        <EmployeeSelect
+          name="employee_id"
+          companyId={companyId}
+          placeholder="Seleccionar empleado"
+          rules={[{ required: true, message: 'Por favor seleccione el empleado' }]}
+        />
         <AreaSelect
           name="department_id"
           companyId={companyId}
@@ -143,7 +149,6 @@ const IndividualGoalForm = ({
           placeholder="Seleccionar posición"
           rules={[{ required: true, message: 'Por favor seleccione la posición' }]}
         />
-
         <Form.Item
           name="description"
           label="Descripción"

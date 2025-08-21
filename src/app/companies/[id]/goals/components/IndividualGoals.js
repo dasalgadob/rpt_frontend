@@ -44,6 +44,8 @@ const IndividualGoals = ({ companyId }) => {
 
   // Transform the response data to component format
   const goals = response?.data?.map(item => ({
+    employee_id: item.attributes?.employee_id,
+    employee_name: item.attributes?.employee_name,
     id: item.id,
     department: item.attributes?.department_name,
     department_id: item.attributes?.department_id,
@@ -63,9 +65,21 @@ const IndividualGoals = ({ companyId }) => {
     });
   };
 
-  const handleDelete = (record) => {
-    toast.info(`Eliminando meta corporativa: ${record.id}`);
-    // TODO: Implement delete functionality
+  const handleDelete = async (record) => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/position_goals/${record.id}`,
+        { method: 'DELETE' }
+      );
+      if (response.ok) {
+        toast.success('Meta individual eliminada correctamente');
+        mutate(); // Refresca la tabla
+      } else {
+        toast.error('No se pudo eliminar la meta individual');
+      }
+    } catch (error) {
+      toast.error('Error al eliminar la meta individual');
+    }
   };
 
   const handleAdd = () => {
@@ -94,6 +108,13 @@ const IndividualGoals = ({ companyId }) => {
   };
 
   const columns = [
+    {
+      title: 'Empleado',
+      dataIndex: 'employee_name',
+      key: 'employee_id',
+      render: (text) => text || 'N/A',
+      sorter: (a, b) => (a.employee_name || 0) - (b.employee_name || 0),
+    },
     {
       title: 'Area',
       dataIndex: 'department',
@@ -162,7 +183,7 @@ const IndividualGoals = ({ companyId }) => {
     return (
       <Card>
         <div style={{ textAlign: 'center', padding: '50px' }}>
-          <h3 style={{ color: '#ff4d4f' }}>Error cargando metas corporativas</h3>
+          <h3 style={{ color: '#ff4d4f' }}>Error cargando metas individuales</h3>
           <p>{error.message}</p>
           <Button onClick={() => mutate()}>Reintentar</Button>
         </div>
@@ -199,7 +220,7 @@ const IndividualGoals = ({ companyId }) => {
         </Row>
       </Form>
       <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h3 style={{ margin: 0 }}>Metas Corporativas</h3>
+        <h3 style={{ margin: 0 }}>Metas Individuales</h3>
         <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
           <Button
             type="primary"
