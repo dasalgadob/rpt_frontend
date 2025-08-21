@@ -6,8 +6,8 @@ import { toast } from 'react-toastify';
 import useSWRMutation from 'swr/mutation';
 import { fetcher } from '../../../../../constants';
 import AreaSelect from '../../goals/components/AreaSelect';
-import PositionSelect from './PositionSelect';
 import PositionTypeSelect from './PositionTypeSelect';
+import PositionSelect from '@/components/position-select/PositionSelect';
 
 const EmployeeForm = ({ 
   visible, 
@@ -132,7 +132,6 @@ const EmployeeForm = ({
             { required: true, message: 'Debe seleccionar un área' }
           ]}
         />
-
         <PositionSelect
           companyId={companyId}
           name="position_id"
