@@ -9,6 +9,7 @@ import {
   PercentageOutlined,
   TeamOutlined,
   FileSearchOutlined,
+  DollarCircleOutlined,
 } from '@ant-design/icons';
 import { Breadcrumb, Layout, Menu, theme } from 'antd';
 
@@ -31,6 +32,7 @@ const items = [
   getItem('Ponderación de pesos', '4', <PercentageOutlined />, null, '/companies/2/position-type-weights'),
   getItem('Empleados', '5', <TeamOutlined />, null, '/companies/2/employees'),
   getItem('Evaluaciones', '6', <FileSearchOutlined />, null, '/companies/2/evaluations'),
+  getItem('Referencia de compensación', '7', <DollarCircleOutlined />, null, '/companies/2/profit_references'),
 ];
 
 const AppLayout = ({ children }) => {

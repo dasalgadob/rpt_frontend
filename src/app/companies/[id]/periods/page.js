@@ -101,7 +101,7 @@ const PeriodsPage = () => {
       },
     },
     {
-      title: '% Mínimo de Utilidad',
+      title: '% Utilidad',
       dataIndex: 'company_profit_percentage',
       key: 'company_profit_percentage',
       align: 'center', // <-- Centra el contenido

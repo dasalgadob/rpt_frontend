@@ -205,7 +205,7 @@ const PeriodsForm = ({
 
         <Form.Item
           name="company_profit_percentage"
-          label={<span style={{ fontWeight: 'bold' }}>% Mínimo de Utilidad</span>}
+          label={<span style={{ fontWeight: 'bold' }}>% Utilidad</span>}
         >
           <Input
             type="number"

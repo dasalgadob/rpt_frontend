@@ -27,7 +27,8 @@ const Evaluations = ({ companyId }) => {
       evaluacion_metas_area: 89,
       porcentaje_metas_individuales: 88,
       evaluacion_metas_individuales: 87,
-      puntuacion_total: 87
+      puntuacion_total: 87,
+      compensacion_variable: 1.45
     },
     {
       id: 2,
@@ -42,7 +43,8 @@ const Evaluations = ({ companyId }) => {
       evaluacion_metas_area: 94,
       porcentaje_metas_individuales: 91,
       evaluacion_metas_individuales: 90,
-      puntuacion_total: 92
+      puntuacion_total: 92,
+      compensacion_variable: 2.15
     },
     {
       id: 3,
@@ -57,7 +59,8 @@ const Evaluations = ({ companyId }) => {
       evaluacion_metas_area: 81,
       porcentaje_metas_individuales: 85,
       evaluacion_metas_individuales: 84,
-      puntuacion_total: 80
+      puntuacion_total: 80,
+      compensacion_variable: 0.98
     },
     {
       id: 4,
@@ -72,7 +75,8 @@ const Evaluations = ({ companyId }) => {
       evaluacion_metas_area: 88,
       porcentaje_metas_individuales: 86,
       evaluacion_metas_individuales: 85,
-      puntuacion_total: 86
+      puntuacion_total: 86,
+      compensacion_variable: 1.78
     },
     {
       id: 5,
@@ -87,7 +91,8 @@ const Evaluations = ({ companyId }) => {
       evaluacion_metas_area: 85,
       porcentaje_metas_individuales: 89,
       evaluacion_metas_individuales: 88,
-      puntuacion_total: 85
+      puntuacion_total: 85,
+      compensacion_variable: 1.32
     }
   ];
 
@@ -131,6 +136,32 @@ const Evaluations = ({ companyId }) => {
       {score || 'N/A'}
     </span>
   );
+
+  // Helper function to render compensation variable with color coding
+  const renderCompensationVariable = (compensation) => {
+    if (!compensation) return 'N/A';
+    
+    let color = '#1890ff'; // Default blue
+    
+    if (compensation >= 2.0) color = '#52c41a'; // Green for high compensation
+    else if (compensation >= 1.5) color = '#faad14'; // Orange for medium compensation
+    else if (compensation >= 1.0) color = '#fa8c16'; // Orange-red for low compensation
+    else color = '#f5222d'; // Red for very low compensation
+
+    return (
+      <span style={{ 
+        color, 
+        fontWeight: 'bold', 
+        fontSize: '14px',
+        padding: '2px 6px',
+        backgroundColor: `${color}15`,
+        borderRadius: '4px',
+        border: `1px solid ${color}30`
+      }}>
+        {compensation.toFixed(2)}
+      </span>
+    );
+  };
 
   const columns = [
     {
@@ -234,6 +265,14 @@ const Evaluations = ({ companyId }) => {
       sorter: (a, b) => (a.puntuacion_total || 0) - (b.puntuacion_total || 0),
     },
     {
+      title: 'Compensación Variable',
+      dataIndex: 'compensacion_variable',
+      key: 'compensacion_variable',
+      width: 150,
+      render: renderCompensationVariable,
+      sorter: (a, b) => (a.compensacion_variable || 0) - (b.compensacion_variable || 0),
+    },
+    {
       title: 'Acciones',
       key: 'actions',
       width: 100,
@@ -274,7 +313,7 @@ const Evaluations = ({ companyId }) => {
           columns={columns}
           dataSource={testEvaluations}
           rowKey="id"
-          scroll={{ x: 1500 }}
+          scroll={{ x: 1650 }}
           pagination={{
             pageSize: 10,
             showSizeChanger: true,
