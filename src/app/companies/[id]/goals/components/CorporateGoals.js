@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Table, Button, Space, Tag, Card, Col, Form, Alert } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Table, Button, Space, Tag, Card, Col, Form, Alert, Tooltip } from 'antd';
+import { PlusOutlined, EditOutlined } from '@ant-design/icons';
+import DeleteButton from '@/components/DeleteButton';
 import useSWR from 'swr';
 import { fetcher } from '../../../../../constants';
 import CorporateGoalForm from './CorporateGoalForm';
@@ -163,19 +164,22 @@ const CorporateGoals = ({ companyId }) => {
       key: 'actions',
       render: (_, record) => (
         <Space size="small">
-          <Button
-            type="text"
-            icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
-            size="small"
-          />
-          <Button
-            type="text"
-            danger
-            icon={<DeleteOutlined />}
-            onClick={() => handleDelete(record)}
-            size="small"
-          />
+          <Tooltip title="Editar meta">
+            <Button
+              type="text"
+              icon={<EditOutlined />}
+              onClick={() => handleEdit(record)}
+              size="small"
+            />
+          </Tooltip>
+          <Tooltip title="Eliminar meta">
+            <DeleteButton
+              endpoint={`${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/corporate_goals`}
+              id={record.id}
+              onSuccess={mutate}
+              confirmMessage={`¿Está seguro de eliminar la meta corporativa?\n\nEsta acción no se puede deshacer.`}
+            />
+          </Tooltip>
         </Space>
       ),
     },
