@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams } from 'next/navigation';
 import useSWR from 'swr';
 import { 
@@ -29,35 +29,15 @@ const PositionTypeWeightsPage = () => {
   const { id } = params; // Company ID from URL
   const [periodFilter, setPeriodFilter] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
-  const [modalMode, setModalMode] = useState('add'); // 'add' or 'edit'
+  const [modalMode, setModalMode] = useState('add');
   const [selectedWeight, setSelectedWeight] = useState(null);
   const [filterForm] = Form.useForm();
 
-  // Usar hook personalizado de SWR para position type weights
-  const { weights: weightsData, isLoading, isError: error, mutate } = useCompanyPositionTypeWeights(id, periodFilter);
-  const { deletePositionTypeWeight } = usePositionTypeWeightOperations();
 
-  // Listen for localStorage changes to refresh data
-  useEffect(() => {
-    const handleStorageChange = () => {
-      console.log('Storage changed, refreshing weights data...');
-      mutate(); // Refresh the data when localStorage changes
-    };
-    
-    window.addEventListener('storage', handleStorageChange);
-    // Also listen for custom events for same-tab localStorage changes
-    window.addEventListener('localStorageChange', handleStorageChange);
-    
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('localStorageChange', handleStorageChange);
-    };
-  }, [mutate]);
+  // Hook para obtener los datos desde el endpoint (sin localStorage)
+  const { weights: allWeights, isLoading, isError: error, mutate } = useCompanyPositionTypeWeights(id, periodFilter);
 
-  // Los datos ya vienen procesados del hook
-  const allWeights = weightsData || [];
-
-  console.log('Position Type Weights Page:', { id, weightsData, error, isLoading, allWeights });
+  console.log('Position Type Weights Page:', { id, allWeights, error, isLoading });
 
   // Watch for form changes and trigger SWR revalidation
   const onFilterFormChange = (changedValues, allValues) => {
@@ -73,42 +53,39 @@ const PositionTypeWeightsPage = () => {
   const columns = [
     {
       title: 'Tipo de posición',
-      dataIndex: 'position_type',
-      key: 'position_type',
-      sorter: (a, b) => (a.position_type || '').localeCompare(b.position_type || ''),
-      render: (text) => text || 'N/A',
+      dataIndex: ['attributes', 'position_type_name'],
+      key: 'position_type_name',
+      render: (text, record) => record.attributes?.position_type_name || 'N/A',
     },
     {
       title: 'Corporativo',
-      dataIndex: 'corporativo',
-      key: 'corporativo',
-      sorter: (a, b) => (a.corporativo || 0) - (b.corporativo || 0),
-      render: (value) => value ? `${value}%` : '0%',
+      dataIndex: ['attributes', 'corporate_percentage'],
+      key: 'corporate_percentage',
+      render: (value, record) => record.attributes?.corporate_percentage ? `${record.attributes.corporate_percentage}%` : '0%',
       align: 'center',
     },
     {
       title: 'Área',
-      dataIndex: 'area',
-      key: 'area',
-      sorter: (a, b) => (a.area || 0) - (b.area || 0),
-      render: (value) => value ? `${value}%` : '0%',
+      dataIndex: ['attributes', 'department_percentage'],
+      key: 'department_percentage',
+      render: (value, record) => record.attributes?.department_percentage ? `${record.attributes.department_percentage}%` : '0%',
       align: 'center',
     },
     {
       title: 'Cargo',
-      dataIndex: 'cargo',
-      key: 'cargo',
-      sorter: (a, b) => (a.cargo || 0) - (b.cargo || 0),
-      render: (value) => value ? `${value}%` : '0%',
+      dataIndex: ['attributes', 'position_percentage'],
+      key: 'position_percentage',
+      render: (value, record) => record.attributes?.position_percentage ? `${record.attributes.position_percentage}%` : '0%',
       align: 'center',
     },
     {
       title: 'Total',
-      dataIndex: 'total',
       key: 'total',
-      sorter: (a, b) => (a.total || 0) - (b.total || 0),
-      render: (value, record) => {
-        const total = (record.corporativo || 0) + (record.area || 0) + (record.cargo || 0);
+      render: (_, record) => {
+        const total =
+          Number(record.attributes?.corporate_percentage || 0) +
+          Number(record.attributes?.department_percentage || 0) +
+          Number(record.attributes?.position_percentage || 0);
         const color = total === 100 ? 'green' : total > 100 ? 'red' : 'orange';
         return <Tag color={color}>{total}%</Tag>;
       },

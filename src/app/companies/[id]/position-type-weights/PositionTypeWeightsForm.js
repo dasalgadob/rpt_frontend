@@ -105,10 +105,10 @@ const PositionTypeWeightsForm = ({
   };
 
   // Calcular total en tiempo real
-  const corporativo = Form.useWatch('corporativo', form) || 0;
-  const area = Form.useWatch('area', form) || 0;
-  const cargo = Form.useWatch('cargo', form) || 0;
-  const total = corporativo + area + cargo;
+  const corporate = Form.useWatch('corporate_percentage', form) || 0;
+  const department = Form.useWatch('department_percentage', form) || 0;
+  const position = Form.useWatch('position_percentage', form) || 0;
+  const total = corporate + department + position;
 
   return (
     <Modal
