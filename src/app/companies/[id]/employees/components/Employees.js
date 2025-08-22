@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Table, Button, Space, Card, Col, Form, Row, Upload } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined, DownloadOutlined, UploadOutlined } from '@ant-design/icons';
+import { Table, Button, Space, Card, Col, Form, Row, Upload, Tooltip } from 'antd';
+import { PlusOutlined, EditOutlined, DownloadOutlined, UploadOutlined } from '@ant-design/icons';
+import DeleteButton from '@/components/DeleteButton';
 import useSWR from 'swr';
 import { fetcher } from '@/constants';
 import { toast } from 'react-toastify';
@@ -235,19 +236,22 @@ const Employees = ({ companyId }) => {
       width: 120,
       render: (_, record) => (
         <Space size="small">
-          <Button
-            type="text"
-            icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
-            size="small"
-          />
-          <Button
-            type="text"
-            danger
-            icon={<DeleteOutlined />}
-            onClick={() => handleDelete(record)}
-            size="small"
-          />
+          <Tooltip title="Editar empleado">
+            <Button
+              type="text"
+              icon={<EditOutlined />}
+              onClick={() => handleEdit(record)}
+              size="small"
+            />
+          </Tooltip>
+          <Tooltip title="Eliminar empleado">
+            <DeleteButton
+              endpoint={`${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/employees`}
+              id={record.id}
+              onSuccess={mutate}
+              confirmMessage={`¿Está seguro de eliminar el empleado "${record.nombre}"?\n\nEsta acción no se puede deshacer.`}
+            />
+          </Tooltip>
         </Space>
       ),
     },

@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Table, Button, Space, Card, Popconfirm } from 'antd';
+import { Table, Button, Space, Card, Tooltip } from 'antd';
 import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import DeleteButton from '@/components/DeleteButton';
 import useSWR from 'swr';
 import { fetcher } from '@/constants';
 import DepartmentModal from './DepartmentModal';
@@ -58,20 +59,22 @@ const DepartmentsPage = ({ params }) => {
       key: 'actions',
       render: (_, record) => (
         <Space size="small">
-          <Button
-            type="text"
-            icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
-            size="small"
-          />
-          <Popconfirm
-            title="¿Seguro que deseas eliminar esta área?"
-            onConfirm={() => handleDelete(record)}
-            okText="Sí"
-            cancelText="No"
-          >
-            <Button type="text" danger icon={<DeleteOutlined />} size="small" />
-          </Popconfirm>
+          <Tooltip title="Editar área">
+            <Button
+              type="text"
+              icon={<EditOutlined />}
+              onClick={() => handleEdit(record)}
+              size="small"
+            />
+          </Tooltip>
+          <Tooltip title="Eliminar área">
+            <DeleteButton
+              endpoint={`${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/departments`}
+              id={record.id}
+              onSuccess={mutate}
+              confirmMessage={`¿Seguro que deseas eliminar el área "${record.name}"?\n\nEsta acción no se puede deshacer.`}
+            />
+          </Tooltip>
         </Space>
       ),
     },

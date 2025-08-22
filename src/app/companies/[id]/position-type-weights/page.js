@@ -23,6 +23,8 @@ import { fetcher } from '../../../../constants';
 import PositionTypeWeightsForm from './PositionTypeWeightsForm';
 import PeriodSelect from '../goals/components/PeriodSelect';
 import { useCompanyPositionTypeWeights, usePositionTypeWeightOperations } from '../../../../hooks/usePositionTypeWeights';
+import DeleteButton from '@/components/DeleteButton';
+
 
 const PositionTypeWeightsPage = () => {
   const params = useParams();
@@ -104,11 +106,10 @@ const PositionTypeWeightsPage = () => {
             />
           </Tooltip>
           <Tooltip title="Eliminar">
-            <Button 
-              type="text" 
-              danger 
-              icon={<DeleteOutlined />} 
-              onClick={() => handleDelete(record)}
+            <DeleteButton
+              endpoint={`${process.env.NEXT_PUBLIC_API_URL}/companies/${id}/position_type_weights`}
+              id={record.id}
+              onSuccess={mutate}
             />
           </Tooltip>
         </Space>

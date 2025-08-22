@@ -16,9 +16,9 @@ import {
 import { 
   PlusOutlined, 
   EditOutlined, 
-  DeleteOutlined,
   SearchOutlined 
 } from '@ant-design/icons';
+import DeleteButton from '@/components/DeleteButton';
 import { fetcher } from '../../../../constants';
 import PeriodsForm from './PeriodsForm';
 import { useCompanyPeriods, usePeriodOperations } from '../../../../hooks/usePeriods';
@@ -126,14 +126,12 @@ const PeriodsPage = () => {
               onClick={() => handleEdit(record)}
             />
           </Tooltip>
-          <Tooltip title="Eliminar">
-            <Button 
-              type="text" 
-              danger 
-              icon={<DeleteOutlined />} 
-              onClick={() => handleDelete(record)}
-            />
-          </Tooltip>
+          <DeleteButton
+            endpoint={`${process.env.NEXT_PUBLIC_API_URL}/companies/${id}/periods`}
+            id={record.id}
+            onSuccess={mutate}
+            confirmMessage={`¿Está seguro de eliminar el período "${record.name}"?\n\nEsta acción no se puede deshacer.`}
+          />
         </Space>
       ),
     },
