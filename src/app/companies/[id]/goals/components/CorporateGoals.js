@@ -135,6 +135,7 @@ const CorporateGoals = ({ companyId }) => {
       dataIndex: 'description',
       key: 'description',
       ellipsis: true,
+      width: 360, // Make description span 3 columns width
       render: (text) => text || 'N/A',
     },
     {
