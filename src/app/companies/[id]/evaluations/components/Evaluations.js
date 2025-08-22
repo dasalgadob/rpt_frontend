@@ -7,6 +7,7 @@ import useSWR from 'swr';
 import { fetcher } from '../../../../../constants';
 import { toast } from 'react-toastify';
 import PeriodSelect from '../../goals/components/PeriodSelect';
+import EvaluationEditModal from './EvaluationEditModal';
 
 const Evaluations = ({ companyId }) => {
   const [filterForm] = Form.useForm();
@@ -17,6 +18,8 @@ const Evaluations = ({ companyId }) => {
     mode: 'add', // 'add' or 'edit'
     selectedRecord: null
   });
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [selectedEvaluation, setSelectedEvaluation] = useState(null);
 
   const { data: response, error, isLoading, mutate } = useSWR(
     companyId && periodFilter
@@ -50,18 +53,20 @@ const Evaluations = ({ companyId }) => {
     // Score results for evaluations
     department_score_result: parseFloat(item.attributes?.department_score_result || 0),
     position_score_result: parseFloat(item.attributes?.position_score_result || 0),
+    // Competencies
+    job_competencies_percentage: item.attributes?.position_type_weight_info?.job_competencies_percentage !== undefined && item.attributes?.position_type_weight_info?.job_competencies_percentage !== null ? parseFloat(item.attributes?.position_type_weight_info?.job_competencies_percentage) : null,
+    job_competencies_score: item.attributes?.job_competencies_score !== undefined && item.attributes?.job_competencies_score !== null ? parseFloat(item.attributes?.job_competencies_score) : null,
     // Overall evaluation score
     evaluation_score: parseFloat(item.attributes?.evaluation_score || 0),
     // Corporate score comes from general response
     corporate_score: parseFloat(response?.corporate_score || 0),
+    // Variable compensation
+    variable_compensation: parseFloat(item.attributes?.variable_compensation || 0),
   })) || [];
 
   const handleEdit = (record) => {
-    setModalState({
-      visible: true,
-      mode: 'edit',
-      selectedRecord: record
-    });
+    setSelectedEvaluation(record);
+    setEditModalVisible(true);
     toast.info(`Editando evaluación de: ${record.nombre}`);
   };
 
@@ -202,6 +207,30 @@ const Evaluations = ({ companyId }) => {
       sorter: (a, b) => (a.position_score_result || 0) - (b.position_score_result || 0),
     },
     {
+      title: '% Competencias',
+      key: 'job_competencies_percentage',
+      width: 150,
+      render: (_, record) => {
+        const value = record.job_competencies_percentage;
+        return value !== undefined && value !== null ? (
+          <span style={{ fontWeight: 'bold' }}>{Number(value).toFixed(1)}%</span>
+        ) : 'N/A';
+      },
+      sorter: (a, b) => (a.job_competencies_percentage || 0) - (b.job_competencies_percentage || 0),
+    },
+    {
+      title: 'Puntuación competencias',
+      key: 'job_competencies_score',
+      width: 170,
+      render: (_, record) => {
+        const value = record.job_competencies_score;
+        return value !== undefined && value !== null ? (
+          <span style={{ fontWeight: 'bold', color: getScoreColor(value) }}>{Number(value).toFixed(1)}</span>
+        ) : 'N/A';
+      },
+      sorter: (a, b) => (a.job_competencies_score || 0) - (b.job_competencies_score || 0),
+    },
+    {
       title: 'Puntuación Total',
       dataIndex: 'evaluation_score',
       key: 'evaluation_score',
@@ -216,6 +245,16 @@ const Evaluations = ({ companyId }) => {
         </span>
       ),
       sorter: (a, b) => (a.evaluation_score || 0) - (b.evaluation_score || 0),
+    },
+    {
+      title: 'Compensación Variable',
+      dataIndex: 'variable_compensation',
+      key: 'variable_compensation',
+      width: 150,
+      render: (value) => value !== undefined && value !== null ? (
+        <span style={{ fontWeight: 'bold', color: '#1890ff' }}>{Number(value).toFixed(2)}</span>
+      ) : 'N/A',
+      sorter: (a, b) => (a.variable_compensation || 0) - (b.variable_compensation || 0),
     },
     {
       title: 'Acciones',
@@ -303,10 +342,13 @@ const Evaluations = ({ companyId }) => {
         />
       </Card>
 
-      {/* TODO: Add EvaluationForm modal component */}
-      {modalState.visible && (
-        <div>Evaluation form modal placeholder</div>
-      )}
+      <EvaluationEditModal
+        visible={editModalVisible}
+        onCancel={() => setEditModalVisible(false)}
+        onSuccess={() => { setEditModalVisible(false); mutate(); }}
+        evaluation={selectedEvaluation}
+        companyId={companyId}
+      />
     </div>
   );
 };
