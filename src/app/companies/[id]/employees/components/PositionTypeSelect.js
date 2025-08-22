@@ -113,7 +113,7 @@ const PositionTypeSelect = ({
         <Option key="create-position-type" value="create-position-type" style={{ borderBottom: '1px solid #f0f0f0', marginBottom: 4 }}>
           <div style={{ display: 'flex', alignItems: 'center', color: '#1890ff' }}>
             <PlusOutlined style={{ marginRight: 8 }} />
-            + Crear Tipo de Posición
+            Crear Tipo de Posición
           </div>
         </Option>
         {positionTypes.map(positionType => (

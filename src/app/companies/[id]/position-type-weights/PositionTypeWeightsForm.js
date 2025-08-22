@@ -17,6 +17,7 @@ const PositionTypeWeightsForm = ({
   mode,
   companyId
 }) => {
+  console.log("🚀 ~ PositionTypeWeightsForm ~ initialValues:", initialValues)
   const [form] = Form.useForm();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { createPositionTypeWeight, updatePositionTypeWeight } = usePositionTypeWeightOperations();
