@@ -47,6 +47,7 @@ const AreaGoals = ({ companyId }) => {
     percentage: item.attributes?.percentage,
     score: item.attributes?.score,
     period: item.attributes?.period,
+    employee: item.attributes?.employee
   })) || [];
 
   // Get department feedback from API response

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import { Select, Form } from 'antd';
 import useSWR from 'swr';
 import { fetcher } from '../../../../../constants';
@@ -10,7 +10,6 @@ const { Option } = Select;
 const PeriodSelect = ({ 
   companyId, 
   placeholder = "Seleccionar periodo",
-  selectFirstAsDefault = false,
   rules = [],
   name
 }) => {
@@ -27,21 +26,12 @@ const PeriodSelect = ({
     })) || [];
   }, [response?.data]);
 
-  // Create a select component that can handle auto-selection
+  // Create a select component
   const PeriodSelectField = (props) => {
-    const { value, onChange: formOnChange } = props;
-    
-    // Auto-select first period if enabled and no value is set
-    useEffect(() => {
-      if (selectFirstAsDefault && periods.length > 0 && !value && formOnChange) {
-        const firstPeriodId = periods[0].id;
-        formOnChange(firstPeriodId);
-      }
-    }, [value, formOnChange]); // Only essential dependencies
-
     return (
       <Select
         style={{ width: '100%' }}
+        defaultValue={{ value: 6, label: '2025' }}
         placeholder={placeholder}
         loading={isLoading}
         allowClear
@@ -59,6 +49,13 @@ const PeriodSelect = ({
       </Select>
     );
   };
+
+  if (isLoading) {
+    return <div>Cargando periodos...</div>;
+  }
+  if (error) {
+    return <div>Error cargando periodos</div>;
+  }
 
   return (
     <Form.Item label="Periodo" name={name} style={{ marginBottom: 0 }} rules={rules}>

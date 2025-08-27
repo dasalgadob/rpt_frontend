@@ -8,6 +8,7 @@ import { fetcher } from '../../../../../constants';
 import PeriodSelect from './PeriodSelect';
 import AreaSelect from './AreaSelect';
 import EmployeeSelect from './EmployeeSelect';
+import DefaultPeriod from './DefaultPeriod';
 
 const { Option } = Select;
 
@@ -37,9 +38,10 @@ const AreasGoalForm = ({
       const numValue = parseInt(percentageValue, 10);
       return isNaN(numValue) ? undefined : numValue;
     })(),
-    period_id: initialValues.period?.id || initialValues.period_id, // Handle both period object and period_id
-    department_id: initialValues.area?.id || initialValues.department_id, // Handle both area object and area_id
+    // period_id: initialValues.period?.id, // Handle both period object and period_id
+    employee_id: initialValues.employee?.name, // Handle both employee object and employee_id
   } : {};
+  console.log("🚀 ~ AreasGoalForm ~ initialValues:", initialValues)
 
   // SWR mutation for creating/updating area goals
   const { trigger: saveGoal, isMutating } = useSWRMutation(
@@ -102,13 +104,7 @@ const AreasGoalForm = ({
         preserve={false}
         initialValues={formInitialValues}
       >
-        <PeriodSelect
-          name={PERIOD_ID}
-          selectFirstAsDefault={true}
-          companyId={companyId}
-          placeholder="Seleccionar periodo"
-          rules={[{ required: true, message: 'Por favor ingrese el periodo' }]}
-        />
+        <DefaultPeriod companyId={companyId} />
 
         <EmployeeSelect
           name="employee_id"
