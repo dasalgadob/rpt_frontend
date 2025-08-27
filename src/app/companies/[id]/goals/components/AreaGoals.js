@@ -41,7 +41,7 @@ const AreaGoals = ({ companyId }) => {
   // Transform the response data to component format
   const goals = response?.data?.map(item => ({
     id: item.id,
-    department: item.attributes?.department_name,
+    department: item.attributes?.employee?.department?.name,
     department_id: item.attributes?.department_id,
     description: item.attributes?.description,
     percentage: item.attributes?.percentage,
@@ -174,7 +174,7 @@ const AreaGoals = ({ companyId }) => {
       dataIndex: 'department',
       key: 'department',
       render: (text) => text || 'N/A',
-      sorter: (a, b) => (a.department?.name || 0) - (b.department?.name || 0),
+      sorter: (a, b) => (a.department || 0) - (b.department || 0),
     },
     {
       title: 'Descripción',

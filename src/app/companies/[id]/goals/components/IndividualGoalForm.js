@@ -137,18 +137,6 @@ const IndividualGoalForm = ({
           placeholder="Seleccionar empleado"
           rules={[{ required: true, message: 'Por favor seleccione el empleado' }]}
         />
-        <AreaSelect
-          name="department_id"
-          companyId={companyId}
-          placeholder="Seleccionar área"
-          rules={[{ required: true, message: 'Por favor seleccione el área' }]}
-        />
-        <PositionSelect
-          name="position_id"
-          companyId={companyId}
-          placeholder="Seleccionar posición"
-          rules={[{ required: true, message: 'Por favor seleccione la posición' }]}
-        />
         <Form.Item
           name="description"
           label="Descripción"

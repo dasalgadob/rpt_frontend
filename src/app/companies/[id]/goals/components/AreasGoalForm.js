@@ -7,6 +7,7 @@ import useSWRMutation from 'swr/mutation';
 import { fetcher } from '../../../../../constants';
 import PeriodSelect from './PeriodSelect';
 import AreaSelect from './AreaSelect';
+import EmployeeSelect from './EmployeeSelect';
 
 const { Option } = Select;
 
@@ -109,13 +110,12 @@ const AreasGoalForm = ({
           rules={[{ required: true, message: 'Por favor ingrese el periodo' }]}
         />
 
-        <AreaSelect
-          name="department_id"
+        <EmployeeSelect
+          name="employee_id"
           companyId={companyId}
-          placeholder="Seleccionar área"
-          rules={[{ required: true, message: 'Por favor seleccione el área' }]}
+          placeholder="Seleccionar empleado"
+          rules={[{ required: true, message: 'Por favor seleccione el empleado' }]}
         />
-
         <Form.Item
           name="description"
           label="Descripción"
