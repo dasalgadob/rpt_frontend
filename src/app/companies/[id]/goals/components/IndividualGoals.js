@@ -45,6 +45,7 @@ const IndividualGoals = ({ companyId }) => {
 
   // Transform the response data to component format
   const goals = response?.data?.map(item => ({
+    employee: item.attributes?.employee,
     employee_id: item.attributes?.employee_id,
     employee_name: item.attributes?.employee_name,
     id: item.id,
@@ -54,6 +55,7 @@ const IndividualGoals = ({ companyId }) => {
     percentage: item.attributes?.percentage,
     score: item.attributes?.score,
     period: item.attributes?.period_name,
+    period_id: item.attributes?.period_id,
     position: item.attributes?.position_name,
     position_id: item.attributes?.position_id
   })) || [];

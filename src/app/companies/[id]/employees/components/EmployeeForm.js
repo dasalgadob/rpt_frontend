@@ -43,9 +43,9 @@ const EmployeeForm = ({
         const formValues = {
           ...initialValues,
           employee_id: initialValues.employee_id,
-          name: initialValues.nombre || initialValues.name,
-          department_id: initialValues.area?.id || initialValues.department_id,
-          position_id: initialValues.posicion?.id || initialValues.position_id,
+          name: initialValues.nombre,
+          department_id: initialValues.department_id,
+          position_id: initialValues.position_id,
           position_type_id: initialValues.position_type_id,
           position_type_name: initialValues.position_type_name
         };

@@ -5,7 +5,7 @@ import { Form, Input, InputNumber, Select, Modal } from 'antd';
 import { toast } from 'react-toastify';
 import useSWRMutation from 'swr/mutation';
 import { fetcher } from '../../../../../constants';
-import PeriodSelect from './PeriodSelect';
+import PeriodSelect from '@/components/PeriodSelect';
 import AreaSelect from './AreaSelect';
 import PositionSelect from './PositionSelect';
 import EmployeeSelect from './EmployeeSelect';
@@ -52,9 +52,10 @@ const IndividualGoalForm = ({
         const formValues = {
           ...initialValues,
           percentage: parseInt(initialValues.percentage, 10), // Ensure percentage is an integer
-          period_id: initialValues.period?.id || initialValues.period_id, // Handle both period object and period_id
-          department_id: initialValues.area?.id || initialValues.department_id, // Handle both area object and area_id
-          position_id: initialValues.position_id, // Handle both position object and position_id
+          period_id: initialValues.period_id, // Handle both period object and period_id
+          employee_id: initialValues.employee.id
+            ? { value: initialValues.employee.id, label: initialValues.employee.name }
+            : undefined,
         };
         
         // Set values in the next tick to ensure proper timing
@@ -82,6 +83,10 @@ const IndividualGoalForm = ({
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
+      // If employee_id is an object, extract the value
+      if (values.employee_id && typeof values.employee_id === 'object') {
+        values.employee_id = values.employee_id.value;
+      }
       
       const method = mode === 'add' ? 'POST' : 'PUT';
       console.log("🚀 ~ handleSubmit ~ method:", method)

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Select, Form } from "antd";
 import useSWR from "swr";
 import { fetcher } from "../../../../../constants";
@@ -14,7 +14,6 @@ const EmployeeSelect = ({
   rules = [],
   ...props
 }) => {
-  // Llama al endpoint de empleados de la compañía
   const { data, isLoading, error } = useSWR(
     companyId
       ? `${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/employees`
@@ -22,34 +21,75 @@ const EmployeeSelect = ({
     (url) => fetcher(url, { method: "GET" })
   );
 
-  // Transforma los datos recibidos
-  const employees =
-    data?.data?.map((item) => ({
-      id: item.id,
-      name:
-        item.attributes?.name ||
-        item.attributes?.full_name ||
-        item.attributes?.email ||
-        `Empleado ${item.id}`,
-    })) || [];
+  const employees = useMemo(
+    () =>
+      data?.data?.map((item) => ({
+        id: item.id,
+        name:
+          item.attributes?.name,
+      })) || [],
+    [data]
+  );
 
-  return (
-    <Form.Item label="Empleado" name={name} rules={rules}>
+  const EmployeeSelectField = (props) => {
+    const { value, onChange } = props;
+    const [displayValue, setDisplayValue] = useState(null);
+
+    useEffect(() => {
+      if (!value) {
+        setDisplayValue(null);
+        return;
+      }
+      // If value is an object (labelInValue), extract value
+      const id = typeof value === 'object' && value !== null ? value.value : value;
+      const emp = employees.find((e) => String(e.id) === String(id));
+      if (emp) {
+        setDisplayValue({ value: emp.id, label: emp.name });
+      } else {
+        setDisplayValue({ value: id, label: isLoading ? "Cargando..." : `Empleado ${id}` });
+      }
+    }, [value, employees, isLoading]);
+
+    if (value && employees.length > 0) {
+      const emp = employees.find((e) => String(e.id) === String(value));
+      if (emp && (!displayValue || displayValue.label !== emp.name)) {
+        setDisplayValue({ value: emp.id, label: emp.name });
+      }
+    }
+
+    return (
       <Select
         style={{ width: "100%" }}
-        showSearch
-        allowClear
-        loading={isLoading}
         placeholder={placeholder}
-        optionFilterProp="children"
+        loading={isLoading}
+        allowClear
+        showSearch
+        labelInValue
+        optionLabelProp="label"
+        value={displayValue}
+        filterOption={(input, option) =>
+          option?.children?.toLowerCase().indexOf(input.toLowerCase()) >= 0
+        }
+        onChange={(selected) => {
+          onChange(selected?.value);
+        }}
+        notFoundContent={
+          isLoading ? "Cargando..." : "No hay empleados disponibles"
+        }
         {...props}
       >
         {employees.map((emp) => (
-          <Option key={emp.id} value={emp.id}>
+          <Option key={emp.id} value={emp.id} label={emp.name}>
             {emp.name}
           </Option>
         ))}
       </Select>
+    );
+  };
+
+  return (
+    <Form.Item label="Empleado" name={name} rules={rules}>
+      <EmployeeSelectField />
     </Form.Item>
   );
 };

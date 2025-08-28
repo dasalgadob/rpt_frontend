@@ -1,11 +1,11 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Form, Input, InputNumber, Select, Modal } from 'antd';
 import { toast } from 'react-toastify';
 import useSWRMutation from 'swr/mutation';
 import { fetcher } from '../../../../../constants';
-import PeriodSelect from './PeriodSelect';
+import PeriodSelect from '@/components/PeriodSelect';
 import AreaSelect from './AreaSelect';
 import EmployeeSelect from './EmployeeSelect';
 import DefaultPeriod from './DefaultPeriod';
@@ -23,25 +23,47 @@ const AreasGoalForm = ({
   mode,
   companyId
 }) => {
+  console.log("🚀 ~ AreasGoalForm ~ initialValues:", initialValues)
   const [form] = Form.useForm();
-  
+  const isSettingInitialValues = useRef(false);
+
   // Watch period value from form
   const periodValue = Form.useWatch(PERIOD_ID, form);
 
   // Transform initialValues for form compatibility
-  const formInitialValues = initialValues ? {
-    ...initialValues,
-    percentage: (() => {
-      if (!initialValues.percentage) return undefined;
-      // Handle percentage values - remove % symbol and convert to number
-      const percentageValue = String(initialValues.percentage).replace('%', '');
-      const numValue = parseInt(percentageValue, 10);
-      return isNaN(numValue) ? undefined : numValue;
-    })(),
-    // period_id: initialValues.period?.id, // Handle both period object and period_id
-    employee_id: initialValues.employee?.name, // Handle both employee object and employee_id
-  } : {};
-  console.log("🚀 ~ AreasGoalForm ~ initialValues:", initialValues)
+  // (leave as is, but remove from initialValues the period_id logic)
+
+  useEffect(() => {
+    if (visible) {
+      if (initialValues) {
+        isSettingInitialValues.current = true;
+        // Transform initialValues to match form field names
+        const formValues = {
+          ...initialValues,
+          percentage: (() => {
+            if (!initialValues.percentage) return undefined;
+            const percentageValue = String(initialValues.percentage).replace('%', '');
+            const numValue = parseInt(percentageValue, 10);
+            return isNaN(numValue) ? undefined : numValue;
+          })(),
+          // Use id for period_id
+          period_id: initialValues.period?.id,
+          employee_id: initialValues.employee
+            ? { value: initialValues.employee.id, label: initialValues.employee.name }
+            : undefined,
+        };
+        setTimeout(() => {
+          form.setFieldsValue(formValues);
+          setTimeout(() => {
+            isSettingInitialValues.current = false;
+          }, 50);
+        }, 0);
+      } else {
+        form.resetFields();
+        isSettingInitialValues.current = false;
+      }
+    }
+  }, [visible, initialValues, form]);
 
   // SWR mutation for creating/updating area goals
   const { trigger: saveGoal, isMutating } = useSWRMutation(
@@ -102,9 +124,8 @@ const AreasGoalForm = ({
         form={form}
         layout="vertical"
         preserve={false}
-        initialValues={formInitialValues}
       >
-        <DefaultPeriod companyId={companyId} />
+        <PeriodSelect companyId={companyId} name={PERIOD_ID} rules={[{ required: true, message: 'Por favor seleccione el periodo' }]} />
 
         <EmployeeSelect
           name="employee_id"

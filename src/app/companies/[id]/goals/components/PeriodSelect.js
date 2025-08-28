@@ -31,7 +31,6 @@ const PeriodSelect = ({
     return (
       <Select
         style={{ width: '100%' }}
-        defaultValue={{ value: 6, label: '2025' }}
         placeholder={placeholder}
         loading={isLoading}
         allowClear
