@@ -13,12 +13,14 @@ import AreasGoalForm from './AreasGoalForm';
 import AreaFilterSelect from './AreaFilterSelect';
 import PositionFilterSelect from './PositionFilterSelect';
 import IndividualGoalForm from './IndividualGoalForm';
+import EmployeeFilterSelect from '@/components/EmployeeFilterSelect';
 
 const IndividualGoals = ({ companyId }) => {
   const [filterForm] = Form.useForm();
   const [periodFilter, setPeriodFilter] = useState(null);
   const [departmentFilter, setDepartmentFilter] = useState(null);
   const [positionFilter, setPositionFilter] = useState(null);
+  const [employeeFilter, setEmployeeFilter] = useState(null);
 
   const [modalState, setModalState] = useState({
     visible: false,
@@ -32,6 +34,7 @@ const IndividualGoals = ({ companyId }) => {
         + `${periodFilter ? `?period_id=${periodFilter}` : ''}`
         + `${departmentFilter ? `${periodFilter ? '&' : '?'}department_id=${departmentFilter}` : ''}`
         + `${positionFilter ? `${periodFilter || departmentFilter ? '&' : '?'}position_id=${positionFilter}` : ''}`
+        + `${employeeFilter ? `${periodFilter || departmentFilter || positionFilter ? '&' : '?'}employee_id=${employeeFilter}` : ''}`
       : null,
     (url) => fetcher(url, { method: 'GET' })
   );
@@ -41,6 +44,7 @@ const IndividualGoals = ({ companyId }) => {
     if ('period' in changedValues) setPeriodFilter(allValues.period);
     if ('department_id' in changedValues) setDepartmentFilter(allValues.department_id);
     if ('position_id' in changedValues) setPositionFilter(allValues.position_id);
+    if ('employee_id' in changedValues) setEmployeeFilter(allValues.employee_id);
   };
 
   // Transform the response data to component format
@@ -200,33 +204,40 @@ const IndividualGoals = ({ companyId }) => {
   return (
     <div>
       <Form form={filterForm} onValuesChange={onFilterFormChange}>
-        <Row gutter={16}>
+        <Row gutter={[16, 16]}>
           <Col span={6}>
             <PeriodSelect
               name="period"
               companyId={companyId}
               placeholder="Filtrar por periodo"
-            selectFirstAsDefault={true}
-          />
-        </Col>
-        <Col span={6}>
-          <AreaFilterSelect
-            name="department_id"
-            companyId={companyId}
-            placeholder="Filtrar por área"
-          />
-        </Col>
-        <Col span={6}>
-          <PositionFilterSelect
-            name="position_id"
-            companyId={companyId}
-            placeholder="Filtrar por posición"
-          />
-        </Col>
+              selectFirstAsDefault={true}
+            />
+          </Col>
+          <Col span={6}>
+            <AreaFilterSelect
+              name="department_id"
+              companyId={companyId}
+              placeholder="Filtrar por área"
+            />
+          </Col>
+          <Col span={6}>
+            <PositionFilterSelect
+              name="position_id"
+              companyId={companyId}
+              placeholder="Filtrar por posición"
+            />
+          </Col>
+          <Col span={6}>
+            <EmployeeFilterSelect
+              name="employee_id"
+              companyId={companyId}
+              placeholder="Filtrar por empleado"
+            />
+          </Col>
         </Row>
       </Form>
-      <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h3 style={{ margin: 0 }}>Metas Individuales</h3>
+      <div style={{ margin: '20px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h3 style={{ margin: '10px 0' }}>Metas Individuales</h3>
         <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
           <Button
             type="primary"

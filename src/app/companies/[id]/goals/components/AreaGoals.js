@@ -11,11 +11,13 @@ import PeriodSelect from './PeriodSelect';
 import { toast } from 'react-toastify';
 import AreasGoalForm from './AreasGoalForm';
 import AreaFilterSelect from './AreaFilterSelect';
+import EmployeeFilterSelect from '@/components/EmployeeFilterSelect';
 
 const AreaGoals = ({ companyId }) => {
   const [filterForm] = Form.useForm();
   const [periodFilter, setPeriodFilter] = useState(null);
   const [departmentFilter, setDepartmentFilter] = useState(null);
+  const [employeeFilter, setEmployeeFilter] = useState(null);
 
   const [modalState, setModalState] = useState({
     visible: false,
@@ -28,6 +30,7 @@ const AreaGoals = ({ companyId }) => {
       ? `${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/department_goals`
         + `${periodFilter ? `?period_id=${periodFilter}` : ''}`
         + `${departmentFilter ? `${periodFilter ? '&' : '?'}department_id=${departmentFilter}` : ''}`
+        + `${employeeFilter ? `${periodFilter || departmentFilter ? '&' : '?'}employee_id=${employeeFilter}` : ''}`
       : null,
     (url) => fetcher(url, { method: 'GET' })
   );
@@ -36,6 +39,7 @@ const AreaGoals = ({ companyId }) => {
   const onFilterFormChange = (changedValues, allValues) => {
     if ('period' in changedValues) setPeriodFilter(allValues.period);
     if ('department_id' in changedValues) setDepartmentFilter(allValues.department_id);
+    if ('employee_id' in changedValues) setEmployeeFilter(allValues.employee_id);
   };
 
   // Transform the response data to component format
@@ -253,14 +257,21 @@ const AreaGoals = ({ companyId }) => {
               placeholder="Filtrar por periodo"
             selectFirstAsDefault={true}
           />
-        </Col>
-        <Col span={6}>
-          <AreaFilterSelect
-            name="department_id"
-            companyId={companyId}
-            placeholder="Filtrar por área"
-          />
-        </Col>
+          </Col>
+          <Col span={6}>
+            <AreaFilterSelect
+              name="department_id"
+              companyId={companyId}
+              placeholder="Filtrar por área"
+            />
+          </Col>
+          <Col span={6}>
+            <EmployeeFilterSelect
+              name="employee_id"
+              companyId={companyId}
+              placeholder="Filtrar por empleado"
+            />
+          </Col>
         </Row>
       </Form>
       
