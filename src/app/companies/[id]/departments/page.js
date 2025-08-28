@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { Table, Button, Space, Card, Tooltip } from 'antd';
 import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import DeleteButton from '@/components/DeleteButton';
+import DownloadButton from '@/components/DownloadButton';
+import UploadExcel from '@/components/UploadExcel';
 import useSWR from 'swr';
 import { fetcher } from '@/constants';
 import DepartmentModal from './DepartmentModal';
@@ -84,9 +86,20 @@ const DepartmentsPage = ({ params }) => {
     <div>
       <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h3 style={{ margin: 0 }}>Áreas</h3>
-        <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
-          Añadir Área
-        </Button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <DownloadButton
+            url={`${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/departments/download`}
+            filename="Areas.xlsx"
+            title="Descargar Excel"
+          />
+          <UploadExcel
+            url={`${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/departments/upload`}
+            title="Importar Excel"
+          />
+          <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
+            Añadir Área
+          </Button>
+        </div>
       </div>
       <Card>
         <Table
