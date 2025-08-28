@@ -12,6 +12,7 @@ import { toast } from 'react-toastify';
 import AreasGoalForm from './AreasGoalForm';
 import AreaFilterSelect from './AreaFilterSelect';
 import EmployeeFilterSelect from '@/components/EmployeeFilterSelect';
+import PeriodSelectFilter from '@/components/PeriodSelectFilter';
 
 const AreaGoals = ({ companyId }) => {
   const [filterForm] = Form.useForm();
@@ -251,7 +252,7 @@ const AreaGoals = ({ companyId }) => {
       <Form form={filterForm} onValuesChange={onFilterFormChange}>
         <Row gutter={16}>
           <Col span={6}>
-            <PeriodSelect
+            <PeriodSelectFilter
               name="period"
               companyId={companyId}
               placeholder="Filtrar por periodo"

@@ -8,6 +8,7 @@ import { fetcher } from '../../../../../constants';
 import { toast } from 'react-toastify';
 import PeriodSelect from '../../goals/components/PeriodSelect';
 import EvaluationEditModal from './EvaluationEditModal';
+import PeriodSelectFilter from '@/components/PeriodSelectFilter';
 
 const Evaluations = ({ companyId }) => {
   const [filterForm] = Form.useForm();
@@ -300,7 +301,8 @@ const Evaluations = ({ companyId }) => {
       <Form form={filterForm} onValuesChange={onFilterFormChange}>
         <Row gutter={16}>
           <Col span={6}>
-            <PeriodSelect
+            <PeriodSelectFilter
+              form={filterForm}
               name="period"
               companyId={companyId}
               placeholder="Seleccionar periodo"

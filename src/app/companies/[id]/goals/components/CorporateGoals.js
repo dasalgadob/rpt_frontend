@@ -9,6 +9,7 @@ import { fetcher } from '../../../../../constants';
 import CorporateGoalForm from './CorporateGoalForm';
 import PeriodSelect from './PeriodSelect';
 import { toast } from 'react-toastify';
+import PeriodSelectFilter from '@/components/PeriodSelectFilter';
 
 const CorporateGoals = ({ companyId }) => {
   const [filterForm] = Form.useForm();
@@ -201,7 +202,7 @@ const CorporateGoals = ({ companyId }) => {
     <div>
       <Form form={filterForm} onValuesChange={onFilterFormChange}>
         <Col span={4}>
-          <PeriodSelect
+          <PeriodSelectFilter
               name="period"
               companyId={companyId}
               placeholder="Filtrar por periodo"

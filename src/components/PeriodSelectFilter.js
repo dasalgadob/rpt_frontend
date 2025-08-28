@@ -7,7 +7,7 @@ import { fetcher } from "@/constants";
 
 const { Option } = Select;
 
-const PeriodSelect = ({
+const PeriodSelectFilter = ({
   companyId,
   placeholder = "Seleccionar periodo",
   rules = [],
@@ -120,4 +120,4 @@ const PeriodSelect = ({
   );
 };
 
-export default PeriodSelect;
+export default PeriodSelectFilter;

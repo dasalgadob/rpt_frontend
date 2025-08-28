@@ -10,6 +10,7 @@ import { toast } from 'react-toastify';
 import PeriodSelect from '../../goals/components/PeriodSelect';
 import ProfitReferenceForm from './ProfitReferenceForm';
 import ReferenceCompensationModal from './ReferenceCompensationModal';
+import PeriodSelectFilter from '@/components/PeriodSelectFilter';
 
 const ProfitReferences = ({ companyId }) => {
   const [filterForm] = Form.useForm();
@@ -257,7 +258,7 @@ const ProfitReferences = ({ companyId }) => {
       <Form form={filterForm} onValuesChange={onFilterFormChange}>
         <Row gutter={16}>
           <Col span={6}>
-            <PeriodSelect
+            <PeriodSelectFilter
               name="period"
               companyId={companyId}
               placeholder="Filtrar por periodo"

@@ -14,6 +14,7 @@ import AreaFilterSelect from './AreaFilterSelect';
 import PositionFilterSelect from './PositionFilterSelect';
 import IndividualGoalForm from './IndividualGoalForm';
 import EmployeeFilterSelect from '@/components/EmployeeFilterSelect';
+import PeriodSelectFilter from '@/components/PeriodSelectFilter';
 
 const IndividualGoals = ({ companyId }) => {
   const [filterForm] = Form.useForm();
@@ -206,7 +207,7 @@ const IndividualGoals = ({ companyId }) => {
       <Form form={filterForm} onValuesChange={onFilterFormChange}>
         <Row gutter={[16, 16]}>
           <Col span={6}>
-            <PeriodSelect
+            <PeriodSelectFilter
               name="period"
               companyId={companyId}
               placeholder="Filtrar por periodo"
