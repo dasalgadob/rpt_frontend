@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@ant-design/icons": "^5.6.1",
@@ -15,13 +16,16 @@
     "next": "15.4.6",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "swr": "^2.3.4",
     "react-toastify": "^11.0.5",
+    "swr": "^2.3.4",
     "zustand": "^4.0.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@types/node": "^24.3.0",
+    "@types/react": "^19.1.12",
     "eslint": "^9",
-    "eslint-config-next": "15.4.6"
+    "eslint-config-next": "15.4.6",
+    "typescript": "^5.9.2"
   }
 }
