@@ -52,7 +52,8 @@ const AreaGoals = ({ companyId }) => {
     percentage: item.attributes?.percentage,
     score: item.attributes?.score,
     period: item.attributes?.period,
-    employee: item.attributes?.employee
+    employee: item.attributes?.employee,
+    goal: item.attributes?.goal
   })) || [];
 
   // Get department feedback from API response
@@ -144,11 +145,6 @@ const AreaGoals = ({ companyId }) => {
     });
   };
 
-  const handleDelete = (record) => {
-    toast.info(`Eliminando meta corporativa: ${record.id}`);
-    // TODO: Implement delete functionality
-  };
-
   const handleAdd = () => {
     setModalState({
       visible: true,
@@ -181,6 +177,12 @@ const AreaGoals = ({ companyId }) => {
       key: 'department',
       render: (text) => text || 'N/A',
       sorter: (a, b) => (a.department || 0) - (b.department || 0),
+    },
+    {
+      title: 'Meta',
+      dataIndex: 'goal',
+      key: 'goal',
+      render: (text) => text || 'N/A',
     },
     {
       title: 'Descripción',
