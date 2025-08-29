@@ -4,8 +4,9 @@ import React from 'react';
 import { Form, Input, InputNumber, Select, Modal } from 'antd';
 import { toast } from 'react-toastify';
 import useSWRMutation from 'swr/mutation';
+import useSWR from 'swr';
 import { fetcher } from '../../../../../constants';
-import PeriodSelect from './PeriodSelect';
+import PeriodSelect from '@/components/PeriodSelect';
 import DimensionSelect from './DimensionSelect';
 
 const { Option } = Select;
@@ -21,10 +22,46 @@ const CorporateGoalForm = ({
   mode,
   companyId
 }) => {
+  console.log("🚀 ~ CorporateGoalForm ~ initialValues:", initialValues)
   const [form] = Form.useForm();
+  const isSettingInitialValues = React.useRef(false);
   
   // Watch period value from form
   const periodValue = Form.useWatch(PERIOD_ID, form);
+
+  // Get default period using SWR
+  const { data: defaultPeriodData } = useSWR(
+    companyId ? `${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/periods/default_period` : null,
+    (url) => fetcher(url, { method: 'GET' })
+  );
+  const defaultPeriod = defaultPeriodData?.data;
+
+  React.useEffect(() => {
+    if (visible) {
+      if (initialValues) {
+        isSettingInitialValues.current = true;
+        const formValues = {
+          ...initialValues,
+          percentage: (() => {
+            if (!initialValues.percentage) return undefined;
+            const percentageValue = String(initialValues.percentage).replace('%', '');
+            const numValue = parseInt(percentageValue, 10);
+            return isNaN(numValue) ? undefined : numValue;
+          })(),
+          period_id: initialValues.period?.id,
+        };
+        setTimeout(() => {
+          form.setFieldsValue(formValues);
+          setTimeout(() => {
+            isSettingInitialValues.current = false;
+          }, 50);
+        }, 0);
+      } else {
+        form.resetFields();
+        isSettingInitialValues.current = false;
+      }
+    }
+  }, [visible, initialValues, form]);
 
   // SWR mutation for creating/updating corporate goals
   const { trigger: saveGoal, isMutating } = useSWRMutation(
@@ -39,19 +76,6 @@ const CorporateGoalForm = ({
       });
     }
   );
-
-  // Transform initialValues for form compatibility
-  const formInitialValues = initialValues ? {
-    ...initialValues,
-    percentage: (() => {
-      if (!initialValues.percentage) return undefined;
-      // Handle percentage values - remove % symbol and convert to number
-      const percentageValue = String(initialValues.percentage).replace('%', '');
-      const numValue = parseInt(percentageValue, 10);
-      return isNaN(numValue) ? undefined : numValue;
-    })(),
-    period_id: initialValues.period?.id || initialValues.period_id,
-  } : {};
 
   const handleSubmit = async () => {
     try {
@@ -98,11 +122,9 @@ const CorporateGoalForm = ({
         form={form}
         layout="vertical"
         preserve={false}
-        initialValues={formInitialValues}
       >
         <PeriodSelect
           name={PERIOD_ID}
-          selectFirstAsDefault={true}
           companyId={companyId}
           placeholder="Seleccionar periodo"
           rules={[{ required: true, message: 'Por favor ingrese el periodo' }]}
@@ -115,7 +137,13 @@ const CorporateGoalForm = ({
           placeholder="Seleccionar dimensión"
           rules={[{ required: true, message: 'Por favor seleccione la dimensión' }]}
         />
-
+        <Form.Item
+          name="goal"
+          label="Meta"
+          rules={[{ required: true, message: 'Por favor ingrese la meta' }]}
+        >
+          <Input placeholder="Ingrese la meta" />
+        </Form.Item>
         <Form.Item
           name="description"
           label="Descripción"

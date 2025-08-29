@@ -25,22 +25,26 @@ function getItem(label, key, icon, children, path) {
   };
 }
 
-const items = [
-  getItem('Panel', '1', <DashboardOutlined />, null, '/'),
-  getItem('Periodo', '2', <CalendarOutlined />, null, '/companies/2/periods'),
-  getItem('Areas', '8', <TeamOutlined />, null, '/companies/2/departments'),
-  getItem('Tipo de posición', '9', <PercentageOutlined />, null, '/companies/2/position_types'), // New menu item
-  getItem('Metas', '3', <TrophyOutlined />, null, '/companies/2/goals'),
-  getItem('Ponderación de pesos', '4', <PercentageOutlined />, null, '/companies/2/position-type-weights'),
-  getItem('Empleados', '5', <TeamOutlined />, null, '/companies/2/employees'),
-  getItem('Evaluaciones', '6', <FileSearchOutlined />, null, '/companies/2/evaluations'),
-  getItem('Referencia de compensación', '7', <DollarCircleOutlined />, null, '/companies/2/profit_references'),
-];
+function getMenuItems(companyId) {
+  return [
+    getItem('Panel', '1', <DashboardOutlined />, null, '/'),
+    getItem('Periodo', '2', <CalendarOutlined />, null, `/companies/${companyId}/periods`),
+    getItem('Areas', '8', <TeamOutlined />, null, `/companies/${companyId}/departments`),
+    getItem('Tipo de posición', '9', <PercentageOutlined />, null, `/companies/${companyId}/position_types`),
+    getItem('Metas', '3', <TrophyOutlined />, null, `/companies/${companyId}/goals`),
+    getItem('Ponderación de pesos', '4', <PercentageOutlined />, null, `/companies/${companyId}/position-type-weights`),
+    getItem('Empleados', '5', <TeamOutlined />, null, `/companies/${companyId}/employees`),
+    getItem('Evaluaciones', '6', <FileSearchOutlined />, null, `/companies/${companyId}/evaluations`),
+    getItem('Referencia de compensación', '7', <DollarCircleOutlined />, null, `/companies/${companyId}/profit_references`),
+  ];
+}
 
 const AppLayout = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
+  const companyId = pathname.split('/')[2] || '2';
+  const items = getMenuItems(companyId);
   
   const {
     token: { colorBgContainer, borderRadiusLG },

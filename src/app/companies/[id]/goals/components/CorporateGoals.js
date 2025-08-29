@@ -42,6 +42,7 @@ const CorporateGoals = ({ companyId }) => {
     percentage: item.attributes?.percentage,
     score: item.attributes?.score,
     period: item.attributes?.period,
+    goal: item.attributes?.goal
   })) || [];
 
   // Get total percentage and score from API response
@@ -131,6 +132,12 @@ const CorporateGoals = ({ companyId }) => {
       key: 'dimension_id',
       render: (dimension) => dimension?.name || 'N/A',
       sorter: (a, b) => (a.dimension?.name || 0) - (b.dimension?.name || 0),
+    },
+    {
+      title: 'Meta',
+      dataIndex: 'goal',
+      key: 'goal',
+      render: (text, record) => record.goal || 'N/A'
     },
     {
       title: 'Descripción',
