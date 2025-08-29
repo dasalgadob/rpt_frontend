@@ -4,10 +4,24 @@ import React, { useEffect, useState, useMemo } from "react";
 import { Select, Form } from "antd";
 import useSWR from "swr";
 import { fetcher } from "../../../../../constants";
+import type { Rule } from "antd/es/form";
 
 const { Option } = Select;
 
-const EmployeeSelect = ({
+interface Employee {
+  id: string | number;
+  name: string;
+}
+
+interface EmployeeSelectProps {
+  name?: string;
+  companyId: string | number;
+  placeholder?: string;
+  rules?: Rule[];
+  [key: string]: any;
+}
+
+const EmployeeSelect: React.FC<EmployeeSelectProps> = ({
   name = "employee_id",
   companyId,
   placeholder = "Seleccionar empleado",
@@ -18,29 +32,27 @@ const EmployeeSelect = ({
     companyId
       ? `${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/employees`
       : null,
-    (url) => fetcher(url, { method: "GET" })
+    (url: string) => fetcher(url, { method: "GET" })
   );
 
-  const employees = useMemo(
+  const employees: Employee[] = useMemo(
     () =>
-      data?.data?.map((item) => ({
+      data?.data?.map((item: any) => ({
         id: item.id,
-        name:
-          item.attributes?.name,
+        name: item.attributes?.name,
       })) || [],
     [data]
   );
 
-  const EmployeeSelectField = (props) => {
+  const EmployeeSelectField: React.FC<any> = (props) => {
     const { value, onChange } = props;
-    const [displayValue, setDisplayValue] = useState(null);
+    const [displayValue, setDisplayValue] = useState<any>(null);
 
     useEffect(() => {
       if (!value) {
         setDisplayValue(null);
         return;
       }
-      // If value is an object (labelInValue), extract value
       const id = typeof value === 'object' && value !== null ? value.value : value;
       const emp = employees.find((e) => String(e.id) === String(id));
       if (emp) {
@@ -48,7 +60,7 @@ const EmployeeSelect = ({
       } else {
         setDisplayValue({ value: id, label: isLoading ? "Cargando..." : `Empleado ${id}` });
       }
-    }, [value, employees, isLoading]);
+    }, [value]); // Only depend on value
 
     if (value && employees.length > 0) {
       const emp = employees.find((e) => String(e.id) === String(value));
@@ -68,7 +80,7 @@ const EmployeeSelect = ({
         optionLabelProp="label"
         value={displayValue}
         filterOption={(input, option) =>
-          option?.children?.toLowerCase().indexOf(input.toLowerCase()) >= 0
+          (option?.children as unknown as string)?.toLowerCase().indexOf(input.toLowerCase()) >= 0
         }
         onChange={(selected) => {
           onChange(selected?.value);

@@ -4,10 +4,23 @@ import React, { useMemo, useEffect, useState } from "react";
 import { Select, Form } from "antd";
 import useSWR from "swr";
 import { fetcher } from "../constants";
+import type { Rule } from "antd/es/form";
 
 const { Option } = Select;
 
-const PeriodSelect = ({
+interface Period {
+  id: string | number;
+  name: string;
+}
+
+interface PeriodSelectProps {
+  companyId: string | number;
+  placeholder?: string;
+  rules?: Rule[];
+  name: string;
+}
+
+const PeriodSelect: React.FC<PeriodSelectProps> = ({
   companyId,
   placeholder = "Seleccionar periodo",
   rules = [],
@@ -21,22 +34,21 @@ const PeriodSelect = ({
     data: response,
     error,
     isLoading,
-  } = useSWR(swrKey, (url) => fetcher(url, { method: "GET" }));
+  } = useSWR(swrKey, (url: string) => fetcher(url, { method: "GET" }));
 
-  const periods = useMemo(() => {
+  const periods: Period[] = useMemo(() => {
     return (
-      response?.data?.map((item) => ({
+      response?.data?.map((item: any) => ({
         id: item.id,
         name: item.attributes.name,
       })) || []
     );
   }, [response?.data]);
 
-  const PeriodSelectField = (props) => {
+  const PeriodSelectField: React.FC<any> = (props) => {
     const { value, onChange } = props;
-    const [displayValue, setDisplayValue] = useState(null);
+    const [displayValue, setDisplayValue] = useState<any>(null);
 
-    // Update display value when periods load or value changes
     useEffect(() => {
       if (!value) {
         setDisplayValue(null);
@@ -51,9 +63,8 @@ const PeriodSelect = ({
           label: isLoading ? "Cargando..." : `Periodo ${value}`,
         });
       }
-    }, [value, periods, isLoading]);
+    }, [value]);
 
-    // Ensure displayValue is updated if periods change
     if (value && periods.length > 0) {
       const period = periods.find((p) => String(p.id) === String(value));
       if (
@@ -74,7 +85,7 @@ const PeriodSelect = ({
         labelInValue
         value={displayValue}
         filterOption={(input, option) =>
-          option?.children?.toLowerCase().indexOf(input.toLowerCase()) >= 0
+          (option?.children as unknown as string)?.toLowerCase().indexOf(input.toLowerCase()) >= 0
         }
         onChange={(selected) => {
           onChange(selected?.value);

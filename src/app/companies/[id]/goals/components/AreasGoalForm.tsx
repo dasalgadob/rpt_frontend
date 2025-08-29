@@ -14,31 +14,57 @@ const { Option } = Select;
 
 const PERIOD_ID = 'period_id';
 
-const AreasGoalForm = ({ 
-  visible, 
-  onCancel, 
+interface Employee {
+  id: string | number;
+  name: string;
+}
+
+interface Period {
+  id: string | number;
+  name?: string;
+}
+
+interface AreaGoalFormValues {
+  id?: string | number | undefined;
+  description?: string | undefined;
+  percentage?: number | string | undefined;
+  score?: number | string | undefined;
+  period?: Period | undefined;
+  period_id?: string | number | undefined;
+  employee?: Employee | undefined;
+  employee_id?: { value: string | number; label: string; } | string | number | undefined;
+}
+
+interface AreasGoalFormProps {
+  visible: boolean;
+  onCancel: () => void;
+  onSuccess: () => void;
+  initialValues?: AreaGoalFormValues | null;
+  title: string;
+  mode: 'add' | 'edit';
+  companyId: string | number;
+}
+
+const AreasGoalForm: React.FC<AreasGoalFormProps> = ({
+  visible,
+  onCancel,
   onSuccess,
-  initialValues, 
+  initialValues,
   title,
   mode,
   companyId
 }) => {
-  console.log("🚀 ~ AreasGoalForm ~ initialValues:", initialValues)
   const [form] = Form.useForm();
   const isSettingInitialValues = useRef(false);
 
   // Watch period value from form
   const periodValue = Form.useWatch(PERIOD_ID, form);
 
-  // Transform initialValues for form compatibility
-  // (leave as is, but remove from initialValues the period_id logic)
-
   useEffect(() => {
     if (visible) {
       if (initialValues) {
         isSettingInitialValues.current = true;
-        // Transform initialValues to match form field names
-        const formValues = {
+        const formValues: AreaGoalFormValues = {
           ...initialValues,
           percentage: (() => {
             if (!initialValues.percentage) return undefined;
@@ -46,7 +72,6 @@ const AreasGoalForm = ({
             const numValue = parseInt(percentageValue, 10);
             return isNaN(numValue) ? undefined : numValue;
           })(),
-          // Use id for period_id
           period_id: initialValues.period?.id,
           employee_id: initialValues.employee
             ? { value: initialValues.employee.id, label: initialValues.employee.name }
@@ -65,13 +90,11 @@ const AreasGoalForm = ({
     }
   }, [visible, initialValues, form]);
 
-  // SWR mutation for creating/updating area goals
   const { trigger: saveGoal, isMutating } = useSWRMutation(
     `${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/department_goals`,
-    async (url, { arg }) => {
+    async (url: string, { arg }: any) => {
       const { values, goalId, method } = arg;
       const requestUrl = method === 'POST' ? url : `${url}/${goalId}`;
-      
       return fetcher(requestUrl, {
         method,
         body: { department_goal: values }
@@ -82,19 +105,15 @@ const AreasGoalForm = ({
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
-      
       const method = mode === 'add' ? 'POST' : 'PUT';
       const goalId = mode === 'edit' ? initialValues?.id : null;
-      
+      // @ts-expect-error: SWRMutation expects null as first argument, arg as options
       await saveGoal({ values, goalId, method });
-
       toast.success(`Meta de área ${mode === 'add' ? 'creada' : 'actualizada'} exitosamente`);
       form.resetFields();
-      onSuccess(); // Refresh the data and close modal
-      
-    } catch (error) {
+      onSuccess();
+    } catch (error: any) {
       if (error.name === 'ValidationError') {
-        // Form validation errors - don't show toast
         console.error('Validation failed:', error);
       } else {
         console.error('Error saving corporate goal:', error);
@@ -126,14 +145,24 @@ const AreasGoalForm = ({
         preserve={false}
       >
         <PeriodSelect companyId={companyId} name={PERIOD_ID} rules={[{ required: true, message: 'Por favor seleccione el periodo' }]} />
-
         <EmployeeSelect
           name="employee_id"
           companyId={companyId}
           placeholder="Seleccionar empleado"
           rules={[{ required: true, message: 'Por favor seleccione el empleado' }]}
         />
-        <Form.Item
+        <Form.Item 
+          label="Meta"
+          name="goal"
+          rules={[{ required: true, message: 'Por favor ingrese la meta' }]}
+        >
+          <Input
+            placeholder="Ingrese la meta"
+            maxLength={100}
+          />
+        </Form.Item>
+
+        <Form.Item 
           name="description"
           label="Descripción"
           rules={[{ required: true, message: 'Por favor ingrese la descripción' }]}
@@ -143,7 +172,6 @@ const AreasGoalForm = ({
             rows={3}
           />
         </Form.Item>
-
         <Form.Item
           name="percentage"
           label="Porcentaje"
@@ -158,10 +186,12 @@ const AreasGoalForm = ({
             min={0}
             max={100}
             formatter={value => `${value}%`}
-            parser={value => value.replace('%', '')}
+            parser={(value => {
+              const parsed = parseFloat((value ?? '').replace('%', ''));
+              return isNaN(parsed) ? undefined : parsed;
+            }) as (displayValue: string | undefined) => number}
           />
         </Form.Item>
-
         <Form.Item
           name="score"
           label="Evaluación"
