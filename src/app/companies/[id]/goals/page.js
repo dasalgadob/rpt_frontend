@@ -4,7 +4,7 @@ import React, { useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import { Tabs } from 'antd';
 import CorporateGoals from './components/CorporateGoals';
-import AreaGoals from './components/AreaGoals';
+import AreaGoals from './components/AreaGoals.tsx';
 import IndividualGoals from './components/IndividualGoals';
 
 const GoalsPage = () => {
