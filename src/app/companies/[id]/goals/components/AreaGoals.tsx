@@ -14,6 +14,16 @@ import AreaFilterSelect from './AreaFilterSelect';
 import EmployeeFilterSelect from '@/components/EmployeeFilterSelect';
 import PeriodSelectFilter from '@/components/PeriodSelectFilter';
 
+interface Period {
+  id: string | number;
+  name?: string;
+}
+
+interface Employee {
+  id: string | number;
+  name: string;
+}
+
 interface Goal {
   id: string | number;
   department?: string;
@@ -21,8 +31,8 @@ interface Goal {
   description?: string;
   percentage?: number | string;
   score?: number | string;
-  period?: { name?: string } | null;
-  employee?: any;
+  period?: Period;
+  employee?: Employee;
   goal?: string;
 }
 
@@ -69,8 +79,14 @@ const AreaGoals: React.FC<AreaGoalsProps> = ({ companyId }) => {
     description: item.attributes?.description,
     percentage: item.attributes?.percentage,
     score: item.attributes?.score,
-    period: item.attributes?.period,
-    employee: item.attributes?.employee,
+    period: item.attributes?.period ? {
+      id: item.attributes.period.id,
+      name: item.attributes.period.name
+    } : undefined,
+    employee: item.attributes?.employee ? {
+      id: item.attributes.employee.id,
+      name: item.attributes.employee.name
+    } : undefined,
     goal: item.attributes?.goal
   })) || [];
 
@@ -182,7 +198,7 @@ const AreaGoals: React.FC<AreaGoalsProps> = ({ companyId }) => {
         title: 'Empleado',
         dataIndex: 'employee',
         key: 'employee',
-        render: (employee: { name?: string } | null) => employee?.name || ''
+        render: (employee: Employee | undefined) => employee?.name || ''
     },
     {
       title: 'Area',
@@ -222,7 +238,7 @@ const AreaGoals: React.FC<AreaGoalsProps> = ({ companyId }) => {
       title: 'Periodo',
       dataIndex: 'period',
       key: 'period',
-      render: (period: { name?: string } | null) => period?.name || 'N/A',
+      render: (period: Period | undefined) => period?.name || 'N/A',
     },
     {
       title: 'Acciones',
