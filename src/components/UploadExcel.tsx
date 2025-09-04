@@ -1,13 +1,18 @@
-import React, { useRef } from 'react';
-import { Button } from 'antd';
+import { Button, type ButtonProps } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
-import { toast } from 'react-toastify';
+import React, { useRef, type ChangeEvent } from 'react';
 
-const UploadExcel = ({ url, title = 'Importar Excel', ...props }) => {
-  const inputRef = useRef();
+interface UploadExcelProps extends ButtonProps {
+  url: string;
+  title?: string;
+}
 
-  const handleFileChange = async (e) => {
-    const file = e.target.files[0];
+const UploadExcel: React.FC<UploadExcelProps> = ({ url, title = 'Importar Excel', ...props }) => {
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    console.log('File selected:', e.target.files);
+    const file = e.target.files?.[0];
     if (!file) return;
     const formData = new FormData();
     formData.append('file', file);
@@ -17,9 +22,9 @@ const UploadExcel = ({ url, title = 'Importar Excel', ...props }) => {
         body: formData,
       });
       if (!res.ok) throw new Error('Error al importar el archivo');
-      toast.success('Archivo importado correctamente');
+      // toast.success('Archivo importado correctamente');
     } catch (err) {
-      toast.error('No se pudo importar el archivo.');
+      // toast.error('No se pudo importar el archivo.');
     } finally {
       e.target.value = '';
     }

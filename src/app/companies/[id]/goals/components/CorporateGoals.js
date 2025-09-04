@@ -42,7 +42,13 @@ const CorporateGoals = ({ companyId }) => {
     percentage: item.attributes?.percentage,
     score: item.attributes?.score,
     period: item.attributes?.period,
-    goal: item.attributes?.goal
+    goal: item.attributes?.goal,
+    goal_floor: item.attributes?.goal_floor,
+    goal_value: item.attributes?.goal_value,
+    goal_ceil: item.attributes?.goal_ceil,
+    formula_below_value: item.attributes?.formula_below_value,
+    formula_above_value: item.attributes?.formula_above_value,
+    goal_achieved: item.attributes?.goal_achieved
   })) || [];
 
   // Get total percentage and score from API response

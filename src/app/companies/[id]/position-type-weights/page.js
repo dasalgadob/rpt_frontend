@@ -81,13 +81,21 @@ const PositionTypeWeightsPage = () => {
       align: 'center',
     },
     {
+      title: 'Competencias',
+      dataIndex: ['attributes', 'job_competencies_percentage'],
+      key: 'job_competencies_percentage',
+      render: (value, record) => record.attributes?.job_competencies_percentage ? `${record.attributes.job_competencies_percentage}%` : '0%',
+      align: 'center',
+    },
+    {
       title: 'Total',
       key: 'total',
       render: (_, record) => {
         const total =
           Number(record.attributes?.corporate_percentage || 0) +
           Number(record.attributes?.department_percentage || 0) +
-          Number(record.attributes?.position_percentage || 0);
+          Number(record.attributes?.position_percentage || 0) +
+          Number(record.attributes?.job_competencies_percentage || 0);
         const color = total === 100 ? 'green' : total > 100 ? 'red' : 'orange';
         return <Tag color={color}>{total}%</Tag>;
       },

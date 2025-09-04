@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef } from 'react';
-import { Form, InputNumber, Modal } from 'antd';
+import { Form, Input, InputNumber, Modal } from 'antd';
 import { toast } from 'react-toastify';
 import useSWRMutation from 'swr/mutation';
 import { fetcher } from '../../../../../constants';
@@ -125,6 +125,16 @@ const ProfitReferenceForm = ({
             precision={2}
             addonAfter="%"
           />
+        </Form.Item>
+
+        <Form.Item
+          label="Ecuación"
+          name="equation"
+          rules={[
+            { required: true, message: 'La ecuación es requerida' }
+          ]}
+        >
+          <Input placeholder="Ingrese la ecuación" />
         </Form.Item>
 
         <PositionTypeSelectMultiple

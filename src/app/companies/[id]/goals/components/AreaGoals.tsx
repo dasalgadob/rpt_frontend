@@ -179,6 +179,12 @@ const AreaGoals: React.FC<AreaGoalsProps> = ({ companyId }) => {
 
   const columns = [
     {
+        title: 'Empleado',
+        dataIndex: 'employee',
+        key: 'employee',
+        render: (employee: { name?: string } | null) => employee?.name || ''
+    },
+    {
       title: 'Area',
       dataIndex: 'department',
       key: 'department',

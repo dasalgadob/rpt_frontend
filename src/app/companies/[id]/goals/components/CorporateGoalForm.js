@@ -38,6 +38,7 @@ const CorporateGoalForm = ({
 
   React.useEffect(() => {
     if (visible) {
+      console.log("🚀 ~ CorporateGoalForm ~ initialValues:", initialValues)
       if (initialValues) {
         isSettingInitialValues.current = true;
         const formValues = {
@@ -48,7 +49,8 @@ const CorporateGoalForm = ({
             const numValue = parseInt(percentageValue, 10);
             return isNaN(numValue) ? undefined : numValue;
           })(),
-          period_id: initialValues.period?.id,
+          period_id: initialValues.period?.id
+          
         };
         setTimeout(() => {
           form.setFieldsValue(formValues);
@@ -154,7 +156,6 @@ const CorporateGoalForm = ({
             rows={3}
           />
         </Form.Item>
-
         <Form.Item
           name="percentage"
           label="Porcentaje"
@@ -174,17 +175,74 @@ const CorporateGoalForm = ({
         </Form.Item>
 
         <Form.Item
-          name="score"
-          label="Evaluación"
-          rules={[{ required: true, message: 'Por favor ingrese la evaluación' }]}
+          name="goal_floor"
+          label="Piso de la Meta"
+          rules={[
+            { required: true, message: 'Por favor ingrese el piso de la Meta' },
+            { type: 'number' }
+          ]}
         >
           <InputNumber
-            placeholder="Ingrese la evaluación"
+            placeholder="Ingrese el piso de la Meta"
             style={{ width: '100%' }}
-            min={0}
-            step={0.1}
           />
         </Form.Item>
+
+        <Form.Item
+          name="goal_value"
+          label="Meta target"
+          rules={[
+            { required: true, message: 'Por favor ingrese la Meta target' },
+            { type: 'number' }
+          ]}
+        >
+          <InputNumber
+            placeholder="Ingrese la meta target"
+            style={{ width: '100%' }}
+          />
+        </Form.Item>
+
+        <Form.Item
+          name="goal_ceil"
+          label="Techo de la meta"
+          rules={[
+            { required: true, message: 'Por favor ingrese el techo de la meta' },
+            { type: 'number' }
+          ]}
+        >
+          <InputNumber
+            placeholder="Ingrese el techo de la meta"
+            style={{ width: '100%' }}
+          />
+        </Form.Item>
+        <Form.Item
+          name="formula_below_value"
+          label="Formula entre piso y target"
+          rules={[{ required: true, message: 'Por favor ingrese la formula entre piso y target' }]}
+        >
+          <Input placeholder="Ingrese la formula" />
+        </Form.Item>
+
+        <Form.Item
+          name="formula_above_value"
+          label="Formula entre target y techo"
+          rules={[{ required: true, message: 'Por favor ingrese la formula entre target y techo' }]}
+        >
+          <Input placeholder="Ingrese la formula" />
+        </Form.Item>
+        <Form.Item
+          name="goal_achieved"
+          label="Meta lograda"
+          rules={[
+            { required: true, message: 'Por favor ingrese la Meta lograda' },
+            { type: 'number' }
+          ]}
+        >
+          <InputNumber
+            placeholder="Ingrese la meta lograda"
+            style={{ width: '100%' }}
+          />
+      </Form.Item>
       </Form>
     </Modal>
   );

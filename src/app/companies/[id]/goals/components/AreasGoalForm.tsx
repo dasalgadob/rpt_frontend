@@ -105,6 +105,8 @@ const AreasGoalForm: React.FC<AreasGoalFormProps> = ({
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
+      console.log("🚀 ~ handleSubmit ~ values:", values)
+      values.employee_id = values.employee_id?.value
       const method = mode === 'add' ? 'POST' : 'PUT';
       const goalId = mode === 'edit' ? initialValues?.id : null;
       // @ts-expect-error: SWRMutation expects null as first argument, arg as options

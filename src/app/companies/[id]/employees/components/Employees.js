@@ -184,9 +184,9 @@ const Employees = ({ companyId }) => {
       }
 
       // Validate file size (max 10MB)
-      const isValidSize = file.size / 1024 / 1024 < 10;
+      const isValidSize = file.size / 1024 / 1024 < 50;
       if (!isValidSize) {
-        toast.error('El archivo debe ser menor a 10MB');
+        toast.error('El archivo debe ser menor a 50MB');
         return false;
       }
 

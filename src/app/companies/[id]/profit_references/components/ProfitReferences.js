@@ -57,6 +57,7 @@ const ProfitReferences = ({ companyId }) => {
     period_id: item.attributes?.period_id,
     since_percentage_profit: item.attributes?.since_percentage_profit,
     position_types: item.attributes?.profit_reference_has_position_types_data || [],
+    equation: item.attributes?.equation
   })) || [];
 
   const handleEdit = (record) => {
@@ -73,7 +74,6 @@ const ProfitReferences = ({ companyId }) => {
       mode: 'edit',
       selectedRecord: recordWithPositionTypeIds
     });
-    toast.info(`Editando referencia de compensación: ${record.id}`);
   };
 
   const handleView = (record) => {
@@ -186,6 +186,11 @@ const ProfitReferences = ({ companyId }) => {
       width: 200,
       render: renderProfitPercentage,
       sorter: (a, b) => (a.since_percentage_profit || 0) - (b.since_percentage_profit || 0),
+    },
+    {
+        title: 'Ecuación',
+        dataIndex: 'equation',
+        key: 'equation'
     },
     {
       title: 'Tipos de Posición',
