@@ -113,14 +113,14 @@ const ProfitReferenceForm = ({
           name="since_percentage_profit"
           rules={[
             { required: true, message: 'El porcentaje de ganancia es requerido' },
-            { type: 'number', min: 0, max: 100, message: 'El porcentaje debe estar entre 0 y 100' }
+            { type: 'number', min: 0, max: 110, message: 'El porcentaje debe estar entre 0 y 100' }
           ]}
         >
           <InputNumber
             style={{ width: '100%' }}
             placeholder="Ingrese el porcentaje de ganancia"
             min={0}
-            max={100}
+            max={110}
             step={0.1}
             precision={2}
             addonAfter="%"
