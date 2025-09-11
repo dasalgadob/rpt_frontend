@@ -12,6 +12,7 @@ import {
   DollarCircleOutlined,
 } from '@ant-design/icons';
 import { Breadcrumb, Layout, Menu, theme } from 'antd';
+import CompanyHeader from './CompanyHeader';
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -76,7 +77,9 @@ const AppLayout = ({ children }) => {
         />
       </Sider>
       <Layout>
-        <Header style={{ padding: 0, background: colorBgContainer }} />
+        <Header style={{ padding: 0, background: colorBgContainer }} >
+          <CompanyHeader />
+        </Header>
         <Content style={{ margin: '0 16px' }}>
           <Breadcrumb 
             style={{ margin: '16px 0' }} 

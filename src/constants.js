@@ -6,10 +6,9 @@ export const fetcher = async (url, params) => {
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
-      // Comentado temporalmente mientras no hay tokens configurados
-      // 'access-token': localStorage.getItem('access-token'),
-      // client: localStorage.getItem('client'),
-      // uid: localStorage.getItem('uid')
+      'access-token': localStorage.getItem('access-token'),
+      client: localStorage.getItem('client'),
+      uid: localStorage.getItem('uid')
     },
     method: params.method,
     body: params.body !== undefined ? JSON.stringify(params.body) : undefined
@@ -38,14 +37,14 @@ export const fetcher = async (url, params) => {
   console.log('API Response data:', data);
   
   // Comentado temporalmente mientras no hay tokens configurados
-  // const accessToken = res.headers.get('access-token');
-  // const client = res.headers.get('client');
-  // const uid = res.headers.get('uid');
-  // if (accessToken && client && uid) {
-  //   localStorage.setItem('access-token', accessToken);
-  //   localStorage.setItem('client', client);
-  //   localStorage.setItem('uid', uid);
-  // }
+  const accessToken = res.headers.get('access-token');
+  const client = res.headers.get('client');
+  const uid = res.headers.get('uid');
+  if (accessToken && client && uid) {
+    localStorage.setItem('access-token', accessToken);
+    localStorage.setItem('client', client);
+    localStorage.setItem('uid', uid);
+  }
   
   return data;
 };
