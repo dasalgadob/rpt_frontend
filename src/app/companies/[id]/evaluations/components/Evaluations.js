@@ -9,10 +9,12 @@ import { toast } from 'react-toastify';
 import PeriodSelect from '../../goals/components/PeriodSelect';
 import EvaluationEditModal from './EvaluationEditModal';
 import PeriodSelectFilter from '@/components/PeriodSelectFilter';
+import EmployeeFilterSelect from '@/components/EmployeeFilterSelect';
 
 const Evaluations = ({ companyId }) => {
   const [filterForm] = Form.useForm();
   const [periodFilter, setPeriodFilter] = useState(null);
+  const [employeeFilter, setEmployeeFilter] = useState(null);
   
   const [modalState, setModalState] = useState({
     visible: false,
@@ -25,6 +27,7 @@ const Evaluations = ({ companyId }) => {
   const { data: response, error, isLoading, mutate } = useSWR(
     companyId && periodFilter
       ? `${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/employee_evaluations?period_id=${periodFilter}`
+        + `${employeeFilter ? `&employee_id=${employeeFilter}` : ''}`
       : null,
     (url) => fetcher(url, { method: 'GET' })
   );
@@ -33,6 +36,9 @@ const Evaluations = ({ companyId }) => {
   const onFilterFormChange = (changedValues, allValues) => {
     if ('period' in changedValues) {
       setPeriodFilter(allValues.period);
+    }
+    if ('employee_id' in changedValues) {
+      setEmployeeFilter(allValues.employee_id);
     }
   };
 
@@ -307,6 +313,13 @@ const Evaluations = ({ companyId }) => {
               companyId={companyId}
               placeholder="Seleccionar periodo"
               selectFirstAsDefault={true}
+            />
+          </Col>
+          <Col span={6}>
+            <EmployeeFilterSelect
+              name="employee_id"
+              companyId={companyId}
+              placeholder="Filtrar por empleado"
             />
           </Col>
         </Row>
