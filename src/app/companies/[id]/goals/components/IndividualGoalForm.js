@@ -21,7 +21,8 @@ const IndividualGoalForm = ({
   initialValues, 
   title,
   mode,
-  companyId
+  companyId,
+  mutate
 }) => {
   console.log("🚀 ~ IndividualGoalForm ~ initialValues:", initialValues)
   const [form] = Form.useForm();
@@ -96,6 +97,12 @@ const IndividualGoalForm = ({
 
       toast.success(`Meta de área ${mode === 'add' ? 'creada' : 'actualizada'} exitosamente`);
       form.resetFields();
+      
+      // Refresh the data if mutate function is provided
+      if (mutate) {
+        mutate();
+      }
+      
       onSuccess(); // Refresh the data and close modal
       
     } catch (error) {

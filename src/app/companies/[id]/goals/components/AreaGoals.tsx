@@ -352,6 +352,7 @@ const AreaGoals: React.FC<AreaGoalsProps> = ({ companyId }) => {
         title={modalState.mode === 'add' ? 'Añadir Meta de Área' : 'Editar Meta de Área'}
         mode={modalState.mode}
         companyId={companyId}
+        mutate={mutate}
       />
     </div>
   );

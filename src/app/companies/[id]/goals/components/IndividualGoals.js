@@ -291,6 +291,7 @@ const IndividualGoals = ({ companyId }) => {
         title={modalState.mode === 'add' ? 'Añadir Meta Individual' : 'Editar Meta Individual'}
         mode={modalState.mode}
         companyId={companyId}
+        mutate={mutate}
       />
     </div>
   );

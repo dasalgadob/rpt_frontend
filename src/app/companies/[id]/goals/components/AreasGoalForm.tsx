@@ -43,6 +43,7 @@ interface AreasGoalFormProps {
   title: string;
   mode: 'add' | 'edit';
   companyId: string | number;
+  mutate?: () => void;
 }
 
 const AreasGoalForm: React.FC<AreasGoalFormProps> = ({
@@ -52,7 +53,8 @@ const AreasGoalForm: React.FC<AreasGoalFormProps> = ({
   initialValues,
   title,
   mode,
-  companyId
+  companyId,
+  mutate
 }) => {
   const [form] = Form.useForm();
   const isSettingInitialValues = useRef(false);
@@ -113,6 +115,12 @@ const AreasGoalForm: React.FC<AreasGoalFormProps> = ({
       await saveGoal({ values, goalId, method });
       toast.success(`Meta de área ${mode === 'add' ? 'creada' : 'actualizada'} exitosamente`);
       form.resetFields();
+      
+      // Refresh the data if mutate function is provided
+      if (mutate) {
+        mutate();
+      }
+      
       onSuccess();
     } catch (error: any) {
       if (error.name === 'ValidationError') {
