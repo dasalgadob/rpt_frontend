@@ -5,6 +5,7 @@ import { Table, Button, Space, Card, Col, Form, Row, Upload, Tooltip } from 'ant
 import { PlusOutlined, EditOutlined, DownloadOutlined, UploadOutlined } from '@ant-design/icons';
 import DeleteButton from '@/components/DeleteButton';
 import DownloadButton from '@/components/DownloadButton';
+import UploadExcel from '@/components/UploadExcel';
 import useSWR from 'swr';
 import { fetcher } from '@/constants';
 import { toast } from 'react-toastify';
@@ -95,68 +96,6 @@ const Employees = ({ companyId }) => {
       mode: 'add',
       selectedRecord: null
     });
-  };
-
-  const handleUpload = async (file) => {
-    try {
-      toast.info('Iniciando importación de empleados...');
-      
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/employees/upload`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-        },
-        body: formData
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Error al procesar el archivo' }));
-        throw new Error(errorData.message || 'Error al importar el archivo');
-      }
-
-      const result = await response.json();
-      
-      toast.success(`Archivo importado exitosamente. ${result.imported_count || 'Varios'} empleados procesados.`);
-      mutate(); // Refresh the employee list
-      
-      return false; // Prevent default upload behavior
-    } catch (error) {
-      console.error('Error uploading file:', error);
-      toast.error(`Error al importar el archivo: ${error.message}`);
-      return false; // Prevent default upload behavior
-    }
-  };
-
-  const uploadProps = {
-    name: 'file',
-    accept: '.xlsx,.xls,.csv',
-    showUploadList: false,
-    beforeUpload: (file) => {
-      // Validate file type
-      const isValidType = file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || 
-                         file.type === 'application/vnd.ms-excel' || 
-                         file.type === 'text/csv' ||
-                         file.name.endsWith('.xlsx') ||
-                         file.name.endsWith('.xls') ||
-                         file.name.endsWith('.csv');
-      
-      if (!isValidType) {
-        toast.error('Solo se permiten archivos Excel (.xlsx, .xls) o CSV (.csv)');
-        return false;
-      }
-
-      // Validate file size (max 10MB)
-      const isValidSize = file.size / 1024 / 1024 < 50;
-      if (!isValidSize) {
-        toast.error('El archivo debe ser menor a 50MB');
-        return false;
-      }
-
-      return handleUpload(file);
-    }
   };
 
   const columns = [
@@ -275,14 +214,10 @@ const Employees = ({ companyId }) => {
           <div style={{ fontSize: '14px', color: '#666' }}>
             Total: {employees.length} empleados
           </div>
-          <Upload {...uploadProps}>
-            <Button
-              icon={<UploadOutlined />}
-              title="Importar empleados desde Excel o CSV"
-            >
-              Importar
-            </Button>
-          </Upload>
+          <UploadExcel
+            url={`${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/employees/upload`}
+            title="Importar"
+          />
           <DownloadButton
             url={`${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/employees/download.xlsx`}
             filename={`empleados_empresa_${companyId}_${new Date().toISOString().split('T')[0]}.xlsx`}
