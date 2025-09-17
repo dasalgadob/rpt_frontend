@@ -32,7 +32,7 @@ const PositionTypeFilterSelect = ({
   );
 
   return (
-    <Form.Item name={name} style={{ marginBottom: 0 }} rules={rules}>
+    <Form.Item name={name} style={{ marginBottom: 0 }} rules={rules} label="Tipo de Posición">
       <Select
         showSearch
         allowClear

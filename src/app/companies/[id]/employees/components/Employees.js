@@ -10,6 +10,7 @@ import { toast } from 'react-toastify';
 import AreaFilterSelect from '../../goals/components/AreaFilterSelect';
 import PositionFilterSelect from './PositionFilterSelect';
 import PositionTypeFilterSelect from './PositionTypeFilterSelect';
+import EmployeeFilterSelect from '@/components/EmployeeFilterSelect';
 import EmployeeForm from './EmployeeForm';
 
 const Employees = ({ companyId }) => {
@@ -17,6 +18,7 @@ const Employees = ({ companyId }) => {
   const [departmentFilter, setDepartmentFilter] = useState(null);
   const [positionFilter, setPositionFilter] = useState(null);
   const [positionTypeFilter, setPositionTypeFilter] = useState(null);
+  const [employeeFilter, setEmployeeFilter] = useState(null);
 
   const [modalState, setModalState] = useState({
     visible: false,
@@ -30,6 +32,7 @@ const Employees = ({ companyId }) => {
         + `${departmentFilter ? `?department_id=${departmentFilter}` : ''}`
         + `${positionFilter ? `${departmentFilter ? '&' : '?'}position_id=${positionFilter}` : ''}`
         + `${positionTypeFilter ? `${departmentFilter || positionFilter ? '&' : '?'}position_type_id=${positionTypeFilter}` : ''}`
+        + `${employeeFilter ? `${departmentFilter || positionFilter || positionTypeFilter ? '&' : '?'}employee_id=${employeeFilter}` : ''}`
       : null,
     (url) => fetcher(url, { method: 'GET' })
   );
@@ -39,6 +42,7 @@ const Employees = ({ companyId }) => {
     if ('department_id' in changedValues) setDepartmentFilter(allValues.department_id);
     if ('position_id' in changedValues) setPositionFilter(allValues.position_id);
     if ('position_type_id' in changedValues) setPositionTypeFilter(allValues.position_type_id);
+    if ('employee_id' in changedValues) setEmployeeFilter(allValues.employee_id);
   };
 
   // Transform the response data to component format
@@ -294,10 +298,17 @@ const Employees = ({ companyId }) => {
               placeholder="Filtrar por tipo de posición"
             />
           </Col>
+          <Col span={6}>
+            <EmployeeFilterSelect
+              name="employee_id"
+              companyId={companyId}
+              placeholder="Filtrar por empleado"
+            />
+          </Col>
         </Row>
       </Form>
       
-      <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ marginTop: 24, marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h3 style={{ margin: 0 }}>Empleados</h3>
         <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
           <div style={{ fontSize: '14px', color: '#666' }}>
