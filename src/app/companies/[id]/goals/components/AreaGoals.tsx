@@ -310,7 +310,7 @@ const AreaGoals: React.FC<AreaGoalsProps> = ({ companyId }) => {
       </Form>
       {getPercentageAlert()}
       {getDepartmentFeedback()}
-      <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ marginTop: 24, marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h3 style={{ margin: 0 }}>Metas de Área</h3>
         <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
           <DownloadButton
