@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Table, Button, Space, Tag, Card, Col, Form, Row, Alert, Tooltip } from 'antd';
 import { PlusOutlined, EditOutlined } from '@ant-design/icons';
 import DeleteButton from '@/components/DeleteButton';
+import DownloadButton from '@/components/DownloadButton';
 import useSWR from 'swr';
 import { fetcher } from '../../../../../constants';
 import CorporateGoalForm from './CorporateGoalForm';
@@ -311,6 +312,11 @@ const AreaGoals: React.FC<AreaGoalsProps> = ({ companyId }) => {
       <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h3 style={{ margin: 0 }}>Metas de Área</h3>
         <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+          <DownloadButton
+            url={`${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/department_goals/download${periodFilter ? `?period_id=${periodFilter}` : ''}`}
+            filename="metas_area.xlsx"
+            title="Descargar"
+          />
           <Button
             type="primary"
             icon={<PlusOutlined />}
