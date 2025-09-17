@@ -96,13 +96,13 @@ const Evaluations = ({ companyId }) => {
   // Helper function to render score with color
   const renderScore = (score) => (
     <span style={{ color: getScoreColor(score), fontWeight: 'bold' }}>
-      {score ? score.toFixed(1) : 'N/A'}
+      {score ? score.toFixed(1) : ''}
     </span>
   );
 
   // Helper function to render compensation variable with color coding
   const renderCompensationVariable = (compensation) => {
-    if (!compensation) return 'N/A';
+    if (!compensation) return '';
     
     let color = '#1890ff'; // Default blue
     
@@ -140,28 +140,28 @@ const Evaluations = ({ companyId }) => {
       key: 'nombre',
       width: 150,
       fixed: 'left',
-      render: (text) => text || 'N/A',
+      render: (text) => text || '',
     },
     {
       title: 'Área',
       dataIndex: 'area',
       key: 'area',
       width: 120,
-      render: (text) => text || 'N/A',
+      render: (text) => text || '',
     },
     {
       title: 'Cargo',
       dataIndex: 'cargo',
       key: 'cargo',
       width: 150,
-      render: (text) => text || 'N/A',
+      render: (text) => text || '',
     },
     {
       title: 'Tipo de Posición',
       dataIndex: 'tipo_posicion',
       key: 'tipo_posicion',
       width: 130,
-      render: (text) => text || 'N/A',
+      render: (text) => text || '',
     },
     {
       title: '% Metas Corporativas',
@@ -215,7 +215,7 @@ const Evaluations = ({ companyId }) => {
         const value = record.job_competencies_percentage;
         return value !== undefined && value !== null ? (
           <span style={{ fontWeight: 'bold' }}>{Number(value).toFixed(1)}%</span>
-        ) : 'N/A';
+        ) : '';
       },
       sorter: (a, b) => (a.job_competencies_percentage || 0) - (b.job_competencies_percentage || 0),
     },
@@ -227,7 +227,7 @@ const Evaluations = ({ companyId }) => {
         const value = record.job_competencies_score;
         return value !== undefined && value !== null ? (
           <span style={{ fontWeight: 'bold', color: getScoreColor(value) }}>{Number(value).toFixed(1)}</span>
-        ) : 'N/A';
+        ) : '';
       },
       sorter: (a, b) => (a.job_competencies_score || 0) - (b.job_competencies_score || 0),
     },
@@ -242,7 +242,7 @@ const Evaluations = ({ companyId }) => {
           fontWeight: 'bold', 
           fontSize: '16px'
         }}>
-          {score ? score.toFixed(1) : 'N/A'}
+          {score ? score.toFixed(1) : ''}
         </span>
       ),
       sorter: (a, b) => (a.evaluation_score || 0) - (b.evaluation_score || 0),
@@ -254,7 +254,7 @@ const Evaluations = ({ companyId }) => {
       width: 150,
       render: (value) => value !== undefined && value !== null ? (
         <span style={{ fontWeight: 'bold', color: '#1890ff' }}>{Number(value).toFixed(2)}</span>
-      ) : 'N/A',
+      ) : '',
       sorter: (a, b) => (a.variable_compensation || 0) - (b.variable_compensation || 0),
     },
     {

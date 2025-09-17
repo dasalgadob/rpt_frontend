@@ -29,8 +29,8 @@ export const useCompanyPeriods = (companyId) => {
       periods = data.map(item => ({
         id: item.id,
         name: item.attributes?.name || 'Sin nombre',
-        type: item.attributes?.period_type || 'N/A',
-        status: item.attributes?.status || 'N/A',
+        type: item.attributes?.period_type || '',
+        status: item.attributes?.status || '',
         companyId: item.relationships?.company?.data?.id,
         company_profit_percentage: item.attributes?.company_profit_percentage ?? null,
         minimum_score_employee: item.attributes?.minimum_score_employee ?? null,
@@ -40,8 +40,8 @@ export const useCompanyPeriods = (companyId) => {
       periods = data.data.map(item => ({
         id: item.id,
         name: item.attributes?.name || 'Sin nombre',
-        type: item.attributes?.period_type || 'N/A',
-        status: item.attributes?.status || 'N/A',
+        type: item.attributes?.period_type || '',
+        status: item.attributes?.status || '',
         companyId: item.relationships?.company?.data?.id,
         company_profit_percentage: item.attributes?.company_profit_percentage ?? null,
         minimum_score_employee: item.attributes?.minimum_score_employee ?? null,

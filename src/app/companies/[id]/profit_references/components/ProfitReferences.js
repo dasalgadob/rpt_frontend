@@ -176,7 +176,7 @@ const ProfitReferences = ({ companyId }) => {
       dataIndex: 'period',
       key: 'period',
       width: 200,
-      render: (text) => text || 'N/A',
+      render: (text) => text || '',
       sorter: (a, b) => (a.period || '').localeCompare(b.period || ''),
     },
     {

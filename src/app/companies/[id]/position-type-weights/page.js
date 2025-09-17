@@ -57,7 +57,7 @@ const PositionTypeWeightsPage = () => {
       title: 'Tipo de posición',
       dataIndex: ['attributes', 'position_type_name'],
       key: 'position_type_name',
-      render: (text, record) => record.attributes?.position_type_name || 'N/A',
+      render: (text, record) => record.attributes?.position_type_name || '',
     },
     {
       title: 'Corporativo',

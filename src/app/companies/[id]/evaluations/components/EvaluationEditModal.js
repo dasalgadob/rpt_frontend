@@ -78,7 +78,7 @@ const EvaluationEditModal = ({ visible, onCancel, onSuccess, evaluation, company
           <Descriptions.Item label="Evaluación de Metas de Área">{evaluation.department_score_result?.toFixed(1)}</Descriptions.Item>
           <Descriptions.Item label="% Metas Individuales">{`${evaluation.position_percentage_result?.toFixed(1)}% / ${evaluation.position_percentage_target?.toFixed(0)}%`}</Descriptions.Item>
           <Descriptions.Item label="Evaluación Metas Individuales">{evaluation.position_score_result?.toFixed(1)}</Descriptions.Item>
-          <Descriptions.Item label="% Competencias">{evaluation.job_competencies_percentage !== null && evaluation.job_competencies_percentage !== undefined ? `${evaluation.job_competencies_percentage.toFixed(1)}%` : 'N/A'}</Descriptions.Item>
+          <Descriptions.Item label="% Competencias">{evaluation.job_competencies_percentage !== null && evaluation.job_competencies_percentage !== undefined ? `${evaluation.job_competencies_percentage.toFixed(1)}%` : ''}</Descriptions.Item>
         </Descriptions>
       )}
       <Form form={form} layout="vertical" style={{ marginTop: 16 }}>

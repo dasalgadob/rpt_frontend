@@ -136,14 +136,14 @@ const CorporateGoals = ({ companyId }) => {
       title: 'Dimensión',
       dataIndex: 'dimension',
       key: 'dimension_id',
-      render: (dimension) => dimension?.name || 'N/A',
+      render: (dimension) => dimension?.name || '',
       sorter: (a, b) => (a.dimension?.name || 0) - (b.dimension?.name || 0),
     },
     {
       title: 'Meta',
       dataIndex: 'goal',
       key: 'goal',
-      render: (text, record) => record.goal || 'N/A'
+      render: (text, record) => record.goal || ''
     },
     {
       title: 'Descripción',
@@ -151,27 +151,27 @@ const CorporateGoals = ({ companyId }) => {
       key: 'description',
       ellipsis: true,
       width: 360, // Make description span 3 columns width
-      render: (text) => text || 'N/A',
+      render: (text) => text || '',
     },
     {
       title: 'Porcentaje',
       dataIndex: 'percentage',
       key: 'percentage',
-      render: (percentage) => percentage ? `${percentage}%` : 'N/A',
+      render: (percentage) => percentage ? `${percentage}%` : '',
       sorter: (a, b) => (a.percentage || 0) - (b.percentage || 0),
     },
     {
       title: 'Evaluación',
       dataIndex: 'score',
       key: 'score',
-      render: (score) => score || 'N/A',
+      render: (score) => score || '',
       sorter: (a, b) => (a.score || 0) - (b.score || 0),
     },
     {
       title: 'Periodo',
       dataIndex: 'period',
       key: 'period',
-      render: (period) => period?.name || 'N/A',
+      render: (period) => period?.name || '',
     },
     {
       title: 'Acciones',

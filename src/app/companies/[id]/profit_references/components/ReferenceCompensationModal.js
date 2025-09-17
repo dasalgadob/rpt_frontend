@@ -17,7 +17,7 @@ const ReferenceCompensationModal = ({ visible, onCancel, profitReferenceId, comp
 
   // Helper function to render percentage with color coding
   const renderPercentage = (percentage) => {
-    if (!percentage) return 'N/A';
+    if (!percentage) return '';
     
     const numPercentage = parseFloat(percentage);
     let color = '#1890ff'; // Default blue
@@ -36,7 +36,7 @@ const ReferenceCompensationModal = ({ visible, onCancel, profitReferenceId, comp
 
   // Helper function to render compensation
   const renderCompensation = (compensation) => {
-    if (!compensation) return 'N/A';
+    if (!compensation) return '';
     
     const numCompensation = parseFloat(compensation);
     return (
