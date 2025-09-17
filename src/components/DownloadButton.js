@@ -7,7 +7,12 @@ const DownloadButton = ({ url, filename = 'archivo.xlsx', title = 'Descargar', .
     try {
       const res = await fetch(url, {
         method: 'GET',
-        headers: { 'Accept': 'application/octet-stream' },
+        headers: { 
+          'Accept': 'application/octet-stream',
+          'access-token': localStorage.getItem('access-token'),
+          'client': localStorage.getItem('client'),
+          'uid': localStorage.getItem('uid')
+        },
       });
       if (!res.ok) throw new Error('Error al descargar el archivo');
       const blob = await res.blob();
