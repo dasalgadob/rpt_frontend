@@ -319,7 +319,7 @@ const AreaGoals: React.FC<AreaGoalsProps> = ({ companyId }) => {
             title="Descargar"
           />
           <UploadExcel
-            url={`http://localhost:3010/companies/1/department_goals/upload`}
+            url={`${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/department_goals/upload`}
             title="Importar"
           />
           <Button
