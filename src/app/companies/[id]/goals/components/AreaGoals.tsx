@@ -5,6 +5,7 @@ import { Table, Button, Space, Tag, Card, Col, Form, Row, Alert, Tooltip } from 
 import { PlusOutlined, EditOutlined } from '@ant-design/icons';
 import DeleteButton from '@/components/DeleteButton';
 import DownloadButton from '@/components/DownloadButton';
+import UploadExcel from '@/components/UploadExcel';
 import useSWR from 'swr';
 import { fetcher } from '../../../../../constants';
 import CorporateGoalForm from './CorporateGoalForm';
@@ -316,6 +317,10 @@ const AreaGoals: React.FC<AreaGoalsProps> = ({ companyId }) => {
             url={`${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/department_goals/download${periodFilter ? `?period_id=${periodFilter}` : ''}`}
             filename="metas_area.xlsx"
             title="Descargar"
+          />
+          <UploadExcel
+            url={`http://localhost:3010/companies/1/department_goals/upload`}
+            title="Importar"
           />
           <Button
             type="primary"

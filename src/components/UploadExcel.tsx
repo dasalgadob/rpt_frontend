@@ -19,6 +19,11 @@ const UploadExcel: React.FC<UploadExcelProps> = ({ url, title = 'Importar Excel'
     try {
       const res = await fetch(url, {
         method: 'POST',
+        headers: {
+          'access-token': localStorage.getItem('access-token') || '',
+          'client': localStorage.getItem('client') || '',
+          'uid': localStorage.getItem('uid') || ''
+        },
         body: formData,
       });
       if (!res.ok) throw new Error('Error al importar el archivo');
