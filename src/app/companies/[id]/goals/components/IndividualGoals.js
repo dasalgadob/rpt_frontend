@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { Table, Button, Space, Tag, Card, Col, Form, Row, Tooltip } from 'antd';
 import { PlusOutlined, EditOutlined } from '@ant-design/icons';
 import DeleteButton from '@/components/DeleteButton';
+import DownloadButton from '@/components/DownloadButton';
+import UploadExcel from '@/components/UploadExcel';
 import useSWR from 'swr';
 import { fetcher } from '../../../../../constants';
 import CorporateGoalForm from './CorporateGoalForm';
@@ -56,6 +58,7 @@ const IndividualGoals = ({ companyId }) => {
     id: item.id,
     department: item.attributes?.department_name,
     department_id: item.attributes?.department_id,
+    goal: item.attributes?.goal,
     description: item.attributes?.description,
     percentage: item.attributes?.percentage,
     score: item.attributes?.score,
@@ -136,6 +139,13 @@ const IndividualGoals = ({ companyId }) => {
       key: 'position',
       render: (text) => text || '',
       sorter: (a, b) => (a.department?.name || 0) - (b.department?.name || 0),
+    },
+    {
+      title: 'Meta',
+      dataIndex: 'goal',
+      key: 'goal',
+      ellipsis: true,
+      render: (text) => text || '',
     },
     {
       title: 'Descripción',
@@ -240,6 +250,15 @@ const IndividualGoals = ({ companyId }) => {
       <div style={{ margin: '20px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h3 style={{ margin: '10px 0' }}>Metas Individuales</h3>
         <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+          <DownloadButton
+            url={`${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/position_goals/download${periodFilter ? `?period_id=${periodFilter}` : ''}`}
+            filename="metas_individuales.xlsx"
+            title="Descargar"
+          />
+          <UploadExcel
+            url={`${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/position_goals/upload`}
+            title="Importar"
+          />
           <Button
             type="primary"
             icon={<PlusOutlined />}

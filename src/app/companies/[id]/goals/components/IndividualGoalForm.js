@@ -143,6 +143,16 @@ const IndividualGoalForm = ({
           rules={[{ required: true, message: 'Por favor seleccione el empleado' }]}
         />
         <Form.Item
+          name="goal"
+          label="Meta"
+          rules={[{ required: true, message: 'Por favor ingrese la meta' }]}
+        >
+          <Input
+            placeholder="Ingrese la meta"
+            rows={3}
+          />
+        </Form.Item>
+        <Form.Item
           name="description"
           label="Descripción"
           rules={[{ required: true, message: 'Por favor ingrese la descripción' }]}
