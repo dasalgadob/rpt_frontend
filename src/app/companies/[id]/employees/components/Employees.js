@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Table, Button, Space, Card, Col, Form, Row, Upload, Tooltip } from 'antd';
 import { PlusOutlined, EditOutlined, DownloadOutlined, UploadOutlined } from '@ant-design/icons';
 import DeleteButton from '@/components/DeleteButton';
+import DownloadButton from '@/components/DownloadButton';
 import useSWR from 'swr';
 import { fetcher } from '@/constants';
 import { toast } from 'react-toastify';
@@ -94,46 +95,6 @@ const Employees = ({ companyId }) => {
       mode: 'add',
       selectedRecord: null
     });
-  };
-
-  const handleDownload = async () => {
-    try {
-      toast.info('Iniciando descarga del archivo Excel...');
-      
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/employees/download.xlsx`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
-          'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Error al descargar el archivo');
-      }
-
-      // Get the blob from the response
-      const blob = await response.blob();
-      
-      // Create a download link
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `empleados_empresa_${companyId}_${new Date().toISOString().split('T')[0]}.xlsx`;
-      
-      // Trigger the download
-      document.body.appendChild(link);
-      link.click();
-      
-      // Clean up
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-      
-      toast.success('Archivo descargado exitosamente');
-    } catch (error) {
-      console.error('Error downloading file:', error);
-      toast.error('Error al descargar el archivo. Inténtelo de nuevo.');
-    }
   };
 
   const handleUpload = async (file) => {
@@ -322,13 +283,11 @@ const Employees = ({ companyId }) => {
               Importar
             </Button>
           </Upload>
-          <Button
-            icon={<DownloadOutlined />}
-            onClick={handleDownload}
-            title="Descargar listado de empleados en Excel"
-          >
-            Descargar
-          </Button>
+          <DownloadButton
+            url={`${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/employees/download.xlsx`}
+            filename={`empleados_empresa_${companyId}_${new Date().toISOString().split('T')[0]}.xlsx`}
+            title="Descargar"
+          />
           <Button
             type="primary"
             icon={<PlusOutlined />}
