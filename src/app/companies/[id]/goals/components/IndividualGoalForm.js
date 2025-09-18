@@ -52,7 +52,7 @@ const IndividualGoalForm = ({
         // Transform initialValues to match form field names
         const formValues = {
           ...initialValues,
-          percentage: parseInt(initialValues.percentage, 10), // Ensure percentage is an integer
+          percentage: parseFloat(initialValues.percentage), // Ensure percentage is a float
           period_id: initialValues.period_id, // Handle both period object and period_id
           employee_id: initialValues.employee.id
             ? { value: initialValues.employee.id, label: initialValues.employee.name }

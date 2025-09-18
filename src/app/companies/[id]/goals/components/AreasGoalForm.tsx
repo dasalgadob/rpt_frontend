@@ -56,6 +56,7 @@ const AreasGoalForm: React.FC<AreasGoalFormProps> = ({
   companyId,
   mutate
 }) => {
+  console.log("🚀 ~ AreasGoalForm ~ initialValues:", initialValues)
   const [form] = Form.useForm();
   const isSettingInitialValues = useRef(false);
 
@@ -71,7 +72,8 @@ const AreasGoalForm: React.FC<AreasGoalFormProps> = ({
           percentage: (() => {
             if (!initialValues.percentage) return undefined;
             const percentageValue = String(initialValues.percentage).replace('%', '');
-            const numValue = parseInt(percentageValue, 10);
+            console.log("🚀 ~ AreasGoalForm ~ percentageValue:", percentageValue)
+            const numValue = parseFloat(percentageValue);
             return isNaN(numValue) ? undefined : numValue;
           })(),
           period_id: initialValues.period?.id,

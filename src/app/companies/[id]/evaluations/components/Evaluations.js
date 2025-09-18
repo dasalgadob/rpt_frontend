@@ -94,7 +94,7 @@ const Evaluations = ({ companyId }) => {
   const renderPercentageWithTarget = (result, target) => (
     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
       <span style={{ fontSize: '12px', fontWeight: 'bold' }}>
-        {result.toFixed(1)}% / {target.toFixed(0)}%
+        {result.toFixed(2)}% / {target.toFixed(0)}%
       </span>
     </div>
   );
@@ -102,7 +102,7 @@ const Evaluations = ({ companyId }) => {
   // Helper function to render score with color
   const renderScore = (score) => (
     <span style={{ color: getScoreColor(score), fontWeight: 'bold' }}>
-      {score ? score.toFixed(1) : ''}
+      {score || score === 0 ? score.toFixed(1) : ''}
     </span>
   );
 
