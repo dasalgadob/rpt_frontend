@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { Modal, Form, Input, Button, message, Select } from 'antd';
+import { Modal, Form, Input, Button, message, Select, InputNumber } from 'antd';
 import { usePeriodOperations } from '../../../../hooks/usePeriods';
 
 const { Option } = Select;
@@ -38,6 +38,7 @@ const PeriodsForm = ({
         
         // Mapear los datos correctamente para el formulario
         const formData = {
+          ...initialValues,
           name: initialValues.name,
           period_type: initialValues.type,
           status: initialValues.status,
@@ -61,31 +62,11 @@ const PeriodsForm = ({
     try {
       setLoading(true);
       const values = await form.validateFields();
-      
-      // Preparar los datos del periodo
-      const periodData = {
-        name: values.name,
-        period_type: values.period_type,
-        status: values.status,
-        company_profit_percentage: values.company_profit_percentage,
-        minimum_score_employee: values.minimum_score_employee
-      };
-
-      console.log('Datos del periodo a enviar:', periodData);
-      console.log('Company ID:', companyId);
-      console.log('Modo:', mode);
-
+      console.log("🚀 ~ handleSubmit ~ values:", values)
       let result;
       
       if (mode === 'add') {
-        // Crear nuevo período usando POST
-        console.log('=== INICIANDO CREACIÓN DE PERÍODO ===');
-        console.log('Llamando createPeriod con:', { companyId, periodData });
-        
-        result = await createPeriod(companyId, periodData);
-        
-        console.log('=== RESULTADO DE createPeriod ===');
-        console.log('Result:', result);
+        result = await createPeriod(companyId, values);
         
         if (result.success) {
           message.success('Período creado exitosamente');
@@ -96,7 +77,7 @@ const PeriodsForm = ({
         }
       } else {
         // Actualizar período existente usando PUT
-        result = await updatePeriod(companyId, initialValues.id, periodData);
+        result = await updatePeriod(companyId, initialValues.id, values);
         
         if (result.success) {
           message.success('Período actualizado exitosamente');
@@ -147,7 +128,7 @@ const PeriodsForm = ({
       >
         <Form.Item
           name="name"
-          label={<span style={{ fontWeight: 'bold' }}>Período</span>}
+          label="Período"
           rules={[
             {
               required: true,
@@ -167,7 +148,7 @@ const PeriodsForm = ({
 
         <Form.Item
           name="period_type"
-          label={<span style={{ fontWeight: 'bold' }}>Tipo</span>}
+          label="Tipo"
           rules={[
             {
               required: true,
@@ -186,7 +167,7 @@ const PeriodsForm = ({
 
         <Form.Item
           name="status"
-          label={<span style={{ fontWeight: 'bold' }}>Estado</span>}
+          label="Estado"
           rules={[
             {
               required: true,
@@ -204,27 +185,80 @@ const PeriodsForm = ({
         </Form.Item>
 
         <Form.Item
-          name="company_profit_percentage"
-          label={<span style={{ fontWeight: 'bold' }}>% Utilidad</span>}
-        >
-          <Input
-            type="number"
-            min={0}
-            max={100}
-            placeholder="Ej: 88"
-            suffix="%"
-          />
-        </Form.Item>
-
-        <Form.Item
           name="minimum_score_employee"
-          label={<span style={{ fontWeight: 'bold' }}>Calificación Mínima de Funcionario</span>}
+          label="Calificación Mínima de Funcionario"
         >
           <Input
             type="number"
             min={0}
             max={100}
             placeholder="Ej: 70"
+          />
+        </Form.Item>
+        <Form.Item
+          name="goal_floor"
+          label="Piso de la Meta"
+          rules={[
+            { required: true, message: 'Por favor ingrese el piso de la Meta' },
+            { type: 'number' }
+          ]}
+        >
+          <InputNumber
+            placeholder="Ingrese el piso de la Meta"
+            style={{ width: '100%' }}
+          />
+        </Form.Item>
+        <Form.Item
+          name="goal_value"
+          label="Meta target"
+          rules={[
+            { required: true, message: 'Por favor ingrese la Meta target' },
+            { type: 'number' }
+          ]}
+        >
+          <InputNumber
+            placeholder="Ingrese la meta target"
+            style={{ width: '100%' }}
+          />
+        </Form.Item>
+        <Form.Item
+          name="goal_ceil"
+          label="Techo de la meta"
+          rules={[
+            { required: true, message: 'Por favor ingrese el techo de la meta' },
+            { type: 'number' }
+          ]}
+        >
+          <InputNumber
+            placeholder="Ingrese el techo de la meta"
+            style={{ width: '100%' }}
+          />
+          </Form.Item>
+        <Form.Item
+          name="formula_below_value"
+          label="Formula entre piso y target"
+          rules={[{ required: true, message: 'Por favor ingrese la formula entre piso y target' }]}
+        >
+          <Input placeholder="Ingrese la formula" />
+        </Form.Item>
+        <Form.Item
+          name="formula_above_value"
+          label="Formula entre target y techo"
+          rules={[{ required: true, message: 'Por favor ingrese la formula entre target y techo' }]}
+        >
+          <Input placeholder="Ingrese la formula" />
+        </Form.Item>
+        <Form.Item
+          name="goal_achieved"
+          label="Meta lograda"
+          rules={[
+            { required: true, message: 'Por favor ingrese la Meta lograda' },
+            { type: 'number' }
+          ]}
+        >
+          <InputNumber
+            placeholder="Ingrese la meta lograda"
+            style={{ width: '100%' }}
           />
         </Form.Item>
       </Form>

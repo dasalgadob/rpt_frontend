@@ -2,22 +2,27 @@ import React from 'react';
 import { Button, Tooltip, message, Popconfirm } from 'antd';
 import { toast } from 'react-toastify';
 import { DeleteOutlined } from '@ant-design/icons';
+import useSWRMutation from 'swr/mutation';
+import { fetcher } from '../constants';
 
 const DeleteButton = ({ endpoint, id, onSuccess, confirmMessage = '¿Está seguro de eliminar este elemento?\n\nEsta acción no se puede deshacer.' }) => {
+  const {
+    data: deleteData,
+    error: deleteError,
+    trigger: triggerDelete,
+    isMutating: deleteIsLoading
+  } = useSWRMutation(
+    `${endpoint}/${id}`,
+    (url) => fetcher(url, { method: 'DELETE' })
+  );
+
   const handleDelete = async () => {
     try {
-      const response = await fetch(`${endpoint}/${id}`, { method: 'DELETE' });
-      if (response.ok) {
-        message.success('Eliminado correctamente');
-        toast.success('Eliminado correctamente');
-        if (onSuccess) onSuccess();
-      } else {
-        message.error('No se pudo eliminar');
-        toast.error('No se pudo eliminar');
-      }
+      await triggerDelete();
+      toast.success('Eliminado correctamente');
+      if (onSuccess) onSuccess();
     } catch (error) {
-  message.error('Error al eliminar');
-  toast.error('Error al eliminar');
+      toast.error('Error al eliminar');
     }
   };
 
@@ -33,7 +38,8 @@ const DeleteButton = ({ endpoint, id, onSuccess, confirmMessage = '¿Está segur
         <Button 
           type="text" 
           danger 
-          icon={<DeleteOutlined />} 
+          icon={<DeleteOutlined />}
+          loading={deleteIsLoading}
         />
       </Tooltip>
     </Popconfirm>
