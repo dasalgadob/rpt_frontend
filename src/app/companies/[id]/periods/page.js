@@ -22,6 +22,7 @@ import DeleteButton from '@/components/DeleteButton';
 import { fetcher } from '../../../../constants';
 import PeriodsForm from './PeriodsForm';
 import { useCompanyPeriods, usePeriodOperations } from '../../../../hooks/usePeriods';
+import Loading from '@/components/loading/Loading';
 
 const PeriodsPage = () => {
   const params = useParams();
@@ -101,9 +102,9 @@ const PeriodsPage = () => {
       },
     },
     {
-      title: '% Utilidad',
-      dataIndex: 'company_profit_percentage',
-      key: 'company_profit_percentage',
+      title: '% Cumplimiento de la Utilidad',
+      dataIndex: 'score',
+      key: 'score',
       align: 'center', // <-- Centra el contenido
       render: (value) => value !== undefined && value !== null ? `${value}%` : 'No definido',
     },
@@ -206,9 +207,7 @@ const PeriodsPage = () => {
   
   if (isLoading) {
     return (
-      <div style={{ textAlign: 'center', padding: '50px' }}>
-        <div>Cargando períodos...</div>
-      </div>
+      <Loading />
     );
   }
 
