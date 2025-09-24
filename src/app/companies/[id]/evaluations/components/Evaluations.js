@@ -10,11 +10,28 @@ import PeriodSelect from '../../goals/components/PeriodSelect';
 import EvaluationEditModal from './EvaluationEditModal';
 import PeriodSelectFilter from '@/components/PeriodSelectFilter';
 import EmployeeFilterSelect from '@/components/EmployeeFilterSelect';
+import AreaFilterSelect from '../../goals/components/AreaFilterSelect';
+import PositionFilterSelect from '../../goals/components/PositionFilterSelect';
+import PositionTypeFilterSelect from '../../employees/components/PositionTypeFilterSelect';
+import DownloadButton from '@/components/DownloadButton';
 
 const Evaluations = ({ companyId }) => {
   const [filterForm] = Form.useForm();
   const [periodFilter, setPeriodFilter] = useState(null);
   const [employeeFilter, setEmployeeFilter] = useState(null);
+  const [departmentFilter, setDepartmentFilter] = useState(null);
+  const [positionFilter, setPositionFilter] = useState(null);
+  const [positionTypeFilter, setPositionTypeFilter] = useState(null);
+
+  // Download URL that gets updated when filters change
+  const downloadUrl = periodFilter 
+    ? `/companies/${companyId}/employee_evaluations/download?period_id=${periodFilter}`
+      + `${employeeFilter ? `&employee_id=${employeeFilter}` : ''}`
+      + `${departmentFilter ? `&department_id=${departmentFilter}` : ''}`
+      + `${positionFilter ? `&position_id=${positionFilter}` : ''}`
+      + `${positionTypeFilter ? `&position_type_id=${positionTypeFilter}` : ''}`
+    : null;
+  console.log("🚀 ~ Evaluations ~ downloadUrl:", downloadUrl)
   
   const [modalState, setModalState] = useState({
     visible: false,
@@ -28,17 +45,30 @@ const Evaluations = ({ companyId }) => {
     companyId && periodFilter
       ? `${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/employee_evaluations?period_id=${periodFilter}`
         + `${employeeFilter ? `&employee_id=${employeeFilter}` : ''}`
+        + `${departmentFilter ? `&department_id=${departmentFilter}` : ''}`
+        + `${positionFilter ? `&position_id=${positionFilter}` : ''}`
+        + `${positionTypeFilter ? `&position_type_id=${positionTypeFilter}` : ''}`
       : null,
     (url) => fetcher(url, { method: 'GET' })
   );
 
   // Watch for form changes and trigger SWR revalidation
   const onFilterFormChange = (changedValues, allValues) => {
+    console.log('Form changed:', changedValues, 'All values:', allValues);
     if ('period' in changedValues) {
       setPeriodFilter(allValues.period);
     }
     if ('employee_id' in changedValues) {
       setEmployeeFilter(allValues.employee_id);
+    }
+    if ('department_id' in changedValues) {
+      setDepartmentFilter(allValues.department_id);
+    }
+    if ('position_id' in changedValues) {
+      setPositionFilter(allValues.position_id);
+    }
+    if ('position_type_id' in changedValues) {
+      setPositionTypeFilter(allValues.position_type_id);
     }
   };
 
@@ -306,7 +336,7 @@ const Evaluations = ({ companyId }) => {
     <div>
       <Form form={filterForm} onValuesChange={onFilterFormChange}>
         <Row gutter={16}>
-          <Col span={6}>
+          <Col span={3}>
             <PeriodSelectFilter
               form={filterForm}
               name="period"
@@ -322,20 +352,57 @@ const Evaluations = ({ companyId }) => {
               placeholder="Filtrar por empleado"
             />
           </Col>
+          <Col span={6}>
+            <AreaFilterSelect
+              name="department_id"
+              companyId={companyId}
+              placeholder="Filtrar por área"
+            />
+          </Col>
+          </Row>
+          <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
+          <Col span={6}>
+            <PositionFilterSelect
+              name="position_id"
+              companyId={companyId}
+              placeholder="Filtrar por posición"
+            />
+          </Col>
+          <Col span={6}>
+            <PositionTypeFilterSelect
+              name="position_type_id"
+              companyId={companyId}
+              placeholder="Filtrar por tipo de posición"
+            />
+          </Col>
         </Row>
       </Form>
       
-      <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ marginTop: 24, marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h3 style={{ margin: 0 }}>Evaluaciones de Desempeño</h3>
-        <div style={{ fontSize: '14px', color: '#666' }}>
-          Total de evaluaciones: {evaluations.length}
-          {response?.corporate_score && (
-            <span style={{ marginLeft: 16 }}>
-              Puntuación Corporativa: <strong style={{ color: getScoreColor(response.corporate_score) }}>
-                {parseFloat(response.corporate_score).toFixed(1)}
-              </strong>
-            </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <div style={{ fontSize: '14px', color: '#666' }}>
+            Total de evaluaciones: {evaluations.length}
+            {response?.corporate_score && (
+              <span style={{ marginLeft: 16 }}>
+                Puntuación Corporativa: <strong style={{ color: getScoreColor(response.corporate_score) }}>
+                  {parseFloat(response.corporate_score).toFixed(1)}
+                </strong>
+              </span>
+            )}
+          </div>
+          {downloadUrl && (
+            <DownloadButton
+              url={`${process.env.NEXT_PUBLIC_API_URL}${downloadUrl}`}
+              filename={`evaluaciones_periodo_${periodFilter}.xlsx`}
+              title="Descargar Excel"
+              disabled={!periodFilter || isLoading}
+            />
           )}
+          {/* Debug info */}
+          <div style={{ fontSize: '10px', color: '#999' }}>
+            Period: {periodFilter}, Company: {companyId}, Form Period: {filterForm.getFieldValue('period')}
+          </div>
         </div>
       </div>
       

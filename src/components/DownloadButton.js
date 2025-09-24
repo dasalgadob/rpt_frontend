@@ -3,6 +3,7 @@ import { Button } from 'antd';
 import { DownloadOutlined } from '@ant-design/icons';
 
 const DownloadButton = ({ url, filename = 'archivo.xlsx', title = 'Descargar', ...props }) => {
+  console.log("🚀 ~ DownloadButton ~ url:", url)
   const handleDownload = async () => {
     try {
       const res = await fetch(url, {

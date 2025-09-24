@@ -72,7 +72,6 @@ const AreasGoalForm: React.FC<AreasGoalFormProps> = ({
           percentage: (() => {
             if (!initialValues.percentage) return undefined;
             const percentageValue = String(initialValues.percentage).replace('%', '');
-            console.log("🚀 ~ AreasGoalForm ~ percentageValue:", percentageValue)
             const numValue = parseFloat(percentageValue);
             return isNaN(numValue) ? undefined : numValue;
           })(),
@@ -213,6 +212,7 @@ const AreasGoalForm: React.FC<AreasGoalFormProps> = ({
             placeholder="Ingrese la evaluación"
             style={{ width: '100%' }}
             min={0}
+            max={110}
             step={0.1}
           />
         </Form.Item>

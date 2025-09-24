@@ -197,6 +197,7 @@ const IndividualGoalForm = ({
             placeholder="Ingrese la evaluación"
             style={{ width: '100%' }}
             min={0}
+            max={110}
             step={0.1}
           />
         </Form.Item>

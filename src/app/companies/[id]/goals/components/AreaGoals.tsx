@@ -92,76 +92,6 @@ const AreaGoals: React.FC<AreaGoalsProps> = ({ companyId }) => {
     goal: item.attributes?.goal
   })) || [];
 
-  const departmentsOk: string = response?.departments_ok || '';
-  const departmentsError: string = response?.departments_error || '';
-  const apiTotalPercentage: number = parseFloat(response?.total_percentage || 0);
-  const apiTotalScore: number = parseFloat(response?.total_score || 0);
-
-  const getPercentageAlert = () => {
-    if (!departmentFilter || goals.length === 0) return null;
-    if (apiTotalPercentage > 100) {
-      return (
-        <Alert
-          message="⚠️ Advertencia: Porcentajes exceden el 100%"
-          description={`La suma total de porcentajes es ${apiTotalPercentage.toFixed(1)}%. Los porcentajes de las metas de área deben sumar exactamente 100%.`}
-          type="warning"
-          showIcon
-          style={{ marginBottom: 16 }}
-        />
-      );
-    } else if (apiTotalPercentage < 100) {
-      return (
-        <Alert
-          message="ℹ️ Información: Porcentajes incompletos"
-          description={`La suma total de porcentajes es ${apiTotalPercentage.toFixed(1)}%. Los porcentajes de las metas de área deben sumar exactamente 100%. Faltan ${(100 - apiTotalPercentage).toFixed(1)} puntos porcentuales.`}
-          type="info"
-          showIcon
-          style={{ marginBottom: 16 }}
-        />
-      );
-    } else if (apiTotalPercentage === 100) {
-      return (
-        <Alert
-          message="✅ Perfecto: Metas de Área tienen sus porcentajes al 100%"
-          description={`La suma total de porcentajes es exactamente 100%. Las metas de área están correctamente balanceadas. Puntuación total: ${apiTotalScore.toFixed(1)} puntos.`}
-          type="success"
-          showIcon
-          style={{ marginBottom: 16 }}
-        />
-      );
-    }
-    return null;
-  };
-
-  const getDepartmentFeedback = () => {
-    const feedbackComponents = [] as React.ReactNode[];
-    if (departmentsOk) {
-      feedbackComponents.push(
-        <Alert
-          key="departments-ok"
-          message="✅ Estado de áreas"
-          description={departmentsOk}
-          type="info"
-          showIcon
-          style={{ marginBottom: 16 }}
-        />
-      );
-    }
-    if (departmentsError) {
-      feedbackComponents.push(
-        <Alert
-          key="departments-error"
-          message="⚠️ Áreas que requieren atención"
-          description={departmentsError}
-          type="warning"
-          showIcon
-          style={{ marginBottom: 16 }}
-        />
-      );
-    }
-    return feedbackComponents;
-  };
-
   const handleEdit = (record: Goal) => {
     setModalState({
       visible: true,
@@ -308,8 +238,6 @@ const AreaGoals: React.FC<AreaGoalsProps> = ({ companyId }) => {
           </Col>
         </Row>
       </Form>
-      {getPercentageAlert()}
-      {getDepartmentFeedback()}
       <div style={{ marginTop: 24, marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h3 style={{ margin: 0 }}>Metas de Área</h3>
         <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
