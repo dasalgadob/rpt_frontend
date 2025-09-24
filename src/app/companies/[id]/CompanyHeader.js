@@ -69,6 +69,9 @@ const CompanyHeader = () => {
 
   return (
     <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', height: '100%', padding: '0 16px', background: colorBgContainer }}>
+      <Button type="primary" danger icon={<LogoutOutlined />} loading={isMutating} onClick={handleLogout}>
+        Logout
+      </Button>
     </div>
   );
 };

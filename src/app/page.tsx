@@ -11,6 +11,7 @@ import { fetcher } from '../constants';
 const { Title, Paragraph } = Typography;
 
 const loginFetcher = async (url: string, { arg }: { arg: { email: string; password: string } }) => {
+  localStorage.clear();
   const response = await fetch(url, {
     method: 'POST',
     headers: {
