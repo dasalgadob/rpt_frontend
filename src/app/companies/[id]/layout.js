@@ -10,6 +10,7 @@ import {
   TeamOutlined,
   FileSearchOutlined,
   DollarCircleOutlined,
+  UserOutlined,
 } from '@ant-design/icons';
 import { Breadcrumb, Layout, Menu, theme } from 'antd';
 import CompanyHeader from './CompanyHeader';
@@ -37,6 +38,7 @@ function getMenuItems(companyId) {
     getItem('Empleados', '5', <TeamOutlined />, null, `/companies/${companyId}/employees`),
     getItem('Evaluaciones', '6', <FileSearchOutlined />, null, `/companies/${companyId}/evaluations`),
     getItem('Referencia de compensación', '7', <DollarCircleOutlined />, null, `/companies/${companyId}/profit_references`),
+    getItem('Usuarios', '10', <UserOutlined />, null, `/companies/${companyId}/users`),
   ];
 }
 

@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from 'antd';
 import { DownloadOutlined } from '@ant-design/icons';
 
 const DownloadButton = ({ url, filename = 'archivo.xlsx', title = 'Descargar', ...props }) => {
   console.log("🚀 ~ DownloadButton ~ url:", url)
+  const [isLoading, setIsLoading] = useState(false);
+  
   const handleDownload = async () => {
+    setIsLoading(true);
     try {
       const res = await fetch(url, {
         method: 'GET',
@@ -56,8 +59,10 @@ const DownloadButton = ({ url, filename = 'archivo.xlsx', title = 'Descargar', .
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(downloadUrl);
+        setIsLoading(false);
       }, 100);
     } catch (err) {
+      setIsLoading(false);
       alert('No se pudo descargar el archivo.');
     }
   };
@@ -67,9 +72,11 @@ const DownloadButton = ({ url, filename = 'archivo.xlsx', title = 'Descargar', .
       type="default"
       icon={<DownloadOutlined />}
       onClick={handleDownload}
+      loading={isLoading}
+      disabled={isLoading}
       {...props}
     >
-      {title}
+      {isLoading ? 'Descargando...' : title}
     </Button>
   );
 };
