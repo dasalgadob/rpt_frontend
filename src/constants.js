@@ -1,18 +1,13 @@
 export const fetcher = async (url, params) => {
   console.log('Fetching from:', url, 'with params:', params);
   console.log('Request body:', params.body ? JSON.stringify(params.body, null, 2) : 'No body');
-  console.log('Local storage tokens:', {
-    'access-token': localStorage.getItem('access-token'),
-    client: localStorage.getItem('client'),
-    uid: localStorage.getItem('uid')
-  });
+  console.log('Local storage Authorization:', localStorage.getItem('Authorization'));
+  
   const res = await fetch(url, {
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
-      'access-token': localStorage.getItem('access-token'),
-      client: localStorage.getItem('client'),
-      uid: localStorage.getItem('uid')
+      'Authorization': localStorage.getItem('Authorization')
     },
     method: params.method,
     body: params.body !== undefined ? JSON.stringify(params.body) : undefined
@@ -40,19 +35,11 @@ export const fetcher = async (url, params) => {
   const data = await res.json();
   console.log('API Response data:', data);
   
-  // Comentado temporalmente mientras no hay tokens configurados
-  console.log('Response headers:', {
-    'access-token': res.headers.get('access-token'),
-    client: res.headers.get('client'),
-    uid: res.headers.get('uid')
-  });
-  const accessToken = res.headers.get('access-token');
-  const client = res.headers.get('client');
-  const uid = res.headers.get('uid');
-  if (accessToken && client && uid) {
-    localStorage.setItem('access-token', accessToken);
-    localStorage.setItem('client', client);
-    localStorage.setItem('uid', uid);
+  // Check for Authorization header in response and update if present
+  const authorization = res.headers.get('Authorization');
+  if (authorization) {
+    console.log('Updating Authorization header from response:', authorization);
+    localStorage.setItem('Authorization', authorization);
   }
   
   return data;

@@ -10,7 +10,7 @@ import { fetcher } from '../constants';
 
 const { Title, Paragraph } = Typography;
 
-const loginFetcher = async (url: string, { arg }: { arg: { email: string; password: string } }) => {
+const loginFetcher = async (url: string, { arg }: { arg: { user: { email: string; password: string } } }) => {
   localStorage.clear();
   const response = await fetch(url, {
     method: 'POST',
@@ -30,23 +30,19 @@ const loginFetcher = async (url: string, { arg }: { arg: { email: string; passwo
 
   const headers = response.headers;
   console.log('🚀 ~ loginFetcher ~ headers:', headers);
-  const accessToken = headers.get('access-token');
-  const client = headers.get('client');
-  const uid = headers.get('uid');
+  const authorization = headers.get('Authorization');
 
   // Get response data
   const data = await response.json();
 
-  if (!accessToken || !client || !uid) {
-    throw new Error('Missing authentication headers');
+  if (!authorization) {
+    throw new Error('Missing Authorization header');
   }
 
-  // Save to localStorage
-  localStorage.setItem('access-token', accessToken);
-  localStorage.setItem('client', client);
-  localStorage.setItem('uid', uid);
+  // Save Authorization header to localStorage
+  localStorage.setItem('Authorization', authorization);
 
-  return { accessToken, client, uid, data };
+  return { authorization, data };
 };
 
 const Home: React.FC = () => {
@@ -55,9 +51,7 @@ const Home: React.FC = () => {
 
   // Clear localStorage when component mounts
   useEffect(() => {
-    localStorage.removeItem('access-token');
-    localStorage.removeItem('client');
-    localStorage.removeItem('uid');
+    localStorage.removeItem('Authorization');
   }, []);
 
   // SWR mutation for login
@@ -69,18 +63,22 @@ const Home: React.FC = () => {
   const handleLogin = async () => {
     try {
       const values = await form.validateFields();
-      const authData = await login({ email: values.email, password: values.password });
+      const authData = await login({user: { email: values.email, password: values.password }});
       console.log("🚀 ~ handleLogin ~ authData:", authData)
-      const companyId = authData?.data?.data?.company_id;
+      
+      // Fix the path to access company_id correctly
+      const companyId = authData?.data?.status?.data?.user?.company_id;
       
       if (companyId) {
         toast.success('¡Inicio de sesión exitoso!');
         router.push(`/companies/${companyId}/goals`);
       } else {
-        throw new Error('No se encontró el ID de la compañía en la respuesta');
+        // Handle case where company_id is null or undefined
+        toast.error('No se encontró una compañía asociada a este usuario');
+        console.log('User data:', authData?.data?.status?.data?.user);
       }
     } catch (err: any) {
-        console.log("🚀 ~ handleLogin ~ error:", err)
+      console.log("🚀 ~ handleLogin ~ error:", err)
       if (err?.status === 401) {
         toast.error('Error de credenciales intentando autenticar');
       } else {

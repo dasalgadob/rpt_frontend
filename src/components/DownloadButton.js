@@ -10,9 +10,7 @@ const DownloadButton = ({ url, filename = 'archivo.xlsx', title = 'Descargar', .
         method: 'GET',
         headers: { 
           'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-          'access-token': localStorage.getItem('access-token'),
-          'client': localStorage.getItem('client'),
-          'uid': localStorage.getItem('uid')
+          'Authorization': localStorage.getItem('Authorization')
         },
       });
       if (!res.ok) throw new Error('Error al descargar el archivo');
