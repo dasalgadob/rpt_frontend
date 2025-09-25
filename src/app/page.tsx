@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button, Typography, Card, Row, Col, Form, Input } from 'antd';
 import { BankOutlined, DashboardOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
@@ -52,6 +52,13 @@ const loginFetcher = async (url: string, { arg }: { arg: { email: string; passwo
 const Home: React.FC = () => {
   const router = useRouter();
   const [form] = Form.useForm();
+
+  // Clear localStorage when component mounts
+  useEffect(() => {
+    localStorage.removeItem('access-token');
+    localStorage.removeItem('client');
+    localStorage.removeItem('uid');
+  }, []);
 
   // SWR mutation for login
   const { trigger: login, isMutating, error } = useSWRMutation(
