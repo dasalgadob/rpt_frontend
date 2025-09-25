@@ -1,7 +1,11 @@
 export const fetcher = async (url, params) => {
   console.log('Fetching from:', url, 'with params:', params);
   console.log('Request body:', params.body ? JSON.stringify(params.body, null, 2) : 'No body');
-  
+  console.log('Local storage tokens:', {
+    'access-token': localStorage.getItem('access-token'),
+    client: localStorage.getItem('client'),
+    uid: localStorage.getItem('uid')
+  });
   const res = await fetch(url, {
     headers: {
       Accept: 'application/json',
@@ -37,6 +41,11 @@ export const fetcher = async (url, params) => {
   console.log('API Response data:', data);
   
   // Comentado temporalmente mientras no hay tokens configurados
+  console.log('Response headers:', {
+    'access-token': res.headers.get('access-token'),
+    client: res.headers.get('client'),
+    uid: res.headers.get('uid')
+  });
   const accessToken = res.headers.get('access-token');
   const client = res.headers.get('client');
   const uid = res.headers.get('uid');
