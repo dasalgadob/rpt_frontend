@@ -399,10 +399,6 @@ const Evaluations = ({ companyId }) => {
               disabled={!periodFilter || isLoading}
             />
           )}
-          {/* Debug info */}
-          <div style={{ fontSize: '10px', color: '#999' }}>
-            Period: {periodFilter}, Company: {companyId}, Form Period: {filterForm.getFieldValue('period')}
-          </div>
         </div>
       </div>
       
