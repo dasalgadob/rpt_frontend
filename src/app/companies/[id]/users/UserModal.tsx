@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useEffect } from 'react';
-import { Modal, Form, Input, Button } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Modal, Form, Input, Button, Switch } from 'antd';
 import { UserOutlined, MailOutlined, LockOutlined } from '@ant-design/icons';
 import useSWRMutation from 'swr/mutation';
 import { fetcher } from '@/constants';
@@ -29,6 +29,7 @@ const UserModal: React.FC<UserModalProps> = ({
   companyId
 }) => {
   const [form] = Form.useForm();
+  const [changePassword, setChangePassword] = useState(false);
 
   // Create user mutation
   const { trigger: createUser, isMutating: isCreating } = useSWRMutation(
@@ -51,8 +52,10 @@ const UserModal: React.FC<UserModalProps> = ({
           name: initialValues.name,
           email: initialValues.email,
         });
+        setChangePassword(false);
       } else {
         form.resetFields();
+        setChangePassword(false);
       }
     }
   }, [visible, mode, initialValues, form]);
@@ -65,7 +68,7 @@ const UserModal: React.FC<UserModalProps> = ({
         user: {
           name: values.name,
           email: values.email,
-          ...(mode === 'add' && {
+          ...((mode === 'add' || (mode === 'edit' && changePassword)) && {
             password: values.password,
             password_confirmation: values.password_confirmation,
           }),
@@ -142,7 +145,26 @@ const UserModal: React.FC<UserModalProps> = ({
           />
         </Form.Item>
 
-        {mode === 'add' && (
+        {mode === 'edit' && (
+          <Form.Item label="Cambiar contraseña">
+            <Switch
+              checked={changePassword}
+              onChange={(checked) => {
+                setChangePassword(checked);
+                if (!checked) {
+                  form.setFieldsValue({
+                    password: undefined,
+                    password_confirmation: undefined,
+                  });
+                }
+              }}
+              checkedChildren="Sí"
+              unCheckedChildren="No"
+            />
+          </Form.Item>
+        )}
+
+        {(mode === 'add' || (mode === 'edit' && changePassword)) && (
           <>
             <Form.Item
               name="password"
