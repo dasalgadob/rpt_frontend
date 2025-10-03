@@ -233,9 +233,20 @@ const CorporateGoalForm = ({
         <Form.Item
           name="goal_achieved"
           label="Meta lograda"
+          dependencies={['goal_ceil']}
           rules={[
             { required: true, message: 'Por favor ingrese la Meta lograda' },
-            { type: 'number' }
+            { type: 'number' },
+            {
+              validator: (_, value) => {
+                if (!value) return Promise.resolve();
+                const goalCeil = form.getFieldValue('goal_ceil');
+                if (goalCeil && value > goalCeil) {
+                  return Promise.reject(new Error('La meta lograda debe ser menor o igual al techo de la meta'));
+                }
+                return Promise.resolve();
+              }
+            }
           ]}
         >
           <InputNumber
