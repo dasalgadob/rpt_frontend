@@ -93,6 +93,8 @@ const Evaluations = ({ companyId }) => {
     // Competencies
     job_competencies_percentage: item.attributes?.position_type_weight_info?.job_competencies_percentage !== undefined && item.attributes?.position_type_weight_info?.job_competencies_percentage !== null ? parseFloat(item.attributes?.position_type_weight_info?.job_competencies_percentage) : null,
     job_competencies_score: item.attributes?.job_competencies_score !== undefined && item.attributes?.job_competencies_score !== null ? parseFloat(item.attributes?.job_competencies_score) : null,
+    // Personal percentage
+    personal_percentage: item.attributes?.personal_percentage !== undefined && item.attributes?.personal_percentage !== null ? parseFloat(item.attributes?.personal_percentage) : null,
     // Overall evaluation score
     evaluation_score: parseFloat(item.attributes?.evaluation_score || 0),
     // Corporate score comes from general response
@@ -266,6 +268,23 @@ const Evaluations = ({ companyId }) => {
         ) : '';
       },
       sorter: (a, b) => (a.job_competencies_score || 0) - (b.job_competencies_score || 0),
+    },
+    {
+      title: 'Puntuación personal',
+      key: 'personal_percentage',
+      width: 150,
+      render: (_, record) => {
+        const value = record.personal_percentage;
+        return value !== undefined && value !== null ? (
+          <span style={{ 
+            fontWeight: 'bold', 
+            color: value >= 85.0 ? '#52c41a' : '#f5222d' 
+          }}>
+            {Number(value).toFixed(2)}
+          </span>
+        ) : '';
+      },
+      sorter: (a, b) => (a.personal_percentage || 0) - (b.personal_percentage || 0),
     },
     {
       title: 'Puntuación Total',
