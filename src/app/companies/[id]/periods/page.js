@@ -103,8 +103,8 @@ const PeriodsPage = () => {
     },
     {
       title: '% Cumplimiento de la Utilidad',
-      dataIndex: 'score',
-      key: 'score',
+      dataIndex: 'company_profit_percentage',
+      key: 'company_profit_percentage',
       align: 'center', // <-- Centra el contenido
       render: (value) => value !== undefined && value !== null ? `${value}%` : 'No definido',
     },

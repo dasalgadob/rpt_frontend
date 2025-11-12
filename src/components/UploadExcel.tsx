@@ -1,6 +1,7 @@
 import { Button, type ButtonProps } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
-import React, { useRef, type ChangeEvent } from 'react';
+import React, { useRef, useState, type ChangeEvent } from 'react';
+import { toast } from 'react-toastify';
 
 interface UploadExcelProps extends ButtonProps {
   url: string;
@@ -9,28 +10,38 @@ interface UploadExcelProps extends ButtonProps {
 
 const UploadExcel: React.FC<UploadExcelProps> = ({ url, title = 'Importar Excel', ...props }) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     console.log('File selected:', e.target.files);
     const file = e.target.files?.[0];
     if (!file) return;
+    
+    setIsLoading(true);
     const formData = new FormData();
     formData.append('file', file);
+    
     try {
       const res = await fetch(url, {
         method: 'POST',
         headers: {
-          'access-token': localStorage.getItem('access-token') || '',
-          'client': localStorage.getItem('client') || '',
-          'uid': localStorage.getItem('uid') || ''
+          'Authorization': localStorage.getItem('Authorization') || ''
         },
         body: formData,
       });
-      if (!res.ok) throw new Error('Error al importar el archivo');
-      // toast.success('Archivo importado correctamente');
-    } catch (err) {
-      // toast.error('No se pudo importar el archivo.');
+      
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        const errorMessage = errorData.message || errorData.error || 'Error al importar el archivo';
+        throw new Error(errorMessage);
+      }
+      
+      toast.success('Archivo importado correctamente');
+    } catch (err: any) {
+      console.error('Upload error:', err);
+      toast.error(err.message || 'No se pudo importar el archivo.');
     } finally {
+      setIsLoading(false);
       e.target.value = '';
     }
   };
@@ -47,9 +58,11 @@ const UploadExcel: React.FC<UploadExcelProps> = ({ url, title = 'Importar Excel'
       <Button
         icon={<UploadOutlined />}
         onClick={() => inputRef.current && inputRef.current.click()}
+        loading={isLoading}
+        disabled={isLoading}
         {...props}
       >
-        {title}
+        {isLoading ? 'Importando...' : title}
       </Button>
     </>
   );

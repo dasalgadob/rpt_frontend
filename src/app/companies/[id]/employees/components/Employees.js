@@ -57,7 +57,8 @@ const Employees = ({ companyId }) => {
     posicion: item.attributes?.position_name,
     position_id: item.attributes?.position_id,
     tipo_posicion: item.attributes?.position_type_name,
-    position_type_id: item.attributes?.position_type_id
+    position_type_id: item.attributes?.position_type_id,
+    salary: item.attributes?.salary
   })) || [];
 
   const handleEdit = (record) => {
@@ -133,6 +134,22 @@ const Employees = ({ companyId }) => {
       key: 'tipo_posicion',
       render: (text) => text || '',
       sorter: (a, b) => (a.tipo_posicion || '').localeCompare(b.tipo_posicion || ''),
+    },
+    {
+      title: 'Salario',
+      dataIndex: 'salary',
+      key: 'salary',
+      width: 120,
+      render: (value) => {
+        if (value === null || value === undefined) return '';
+        return new Intl.NumberFormat('es-CO', {
+          style: 'currency',
+          currency: 'COP',
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
+        }).format(value);
+      },
+      sorter: (a, b) => (a.salary || 0) - (b.salary || 0),
     },
     {
       title: 'Acciones',

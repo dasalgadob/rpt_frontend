@@ -101,6 +101,8 @@ const Evaluations = ({ companyId }) => {
     corporate_score: parseFloat(response?.corporate_score || 0),
     // Variable compensation
     variable_compensation: parseFloat(item.attributes?.variable_compensation || 0),
+    // Total variable compensation
+    total_variable_compensation: parseFloat(item.attributes?.total_variable_compensation || 0),
   })) || [];
 
   const handleEdit = (record) => {
@@ -297,7 +299,7 @@ const Evaluations = ({ companyId }) => {
           fontWeight: 'bold', 
           fontSize: '16px'
         }}>
-          {score ? score.toFixed(1) : ''}
+          {score ? score.toFixed(2) : ''}
         </span>
       ),
       sorter: (a, b) => (a.evaluation_score || 0) - (b.evaluation_score || 0),
@@ -311,6 +313,22 @@ const Evaluations = ({ companyId }) => {
         <span style={{ fontWeight: 'bold', color: '#1890ff' }}>{Number(value).toFixed(2)}</span>
       ) : '',
       sorter: (a, b) => (a.variable_compensation || 0) - (b.variable_compensation || 0),
+    },
+    {
+      title: 'Compensación variable total',
+      dataIndex: 'total_variable_compensation',
+      key: 'total_variable_compensation',
+      width: 180,
+      render: (value) => {
+        if (value === null || value === undefined || value === 0) return '';
+        return new Intl.NumberFormat('es-CO', {
+          style: 'currency',
+          currency: 'COP',
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
+        }).format(value);
+      },
+      sorter: (a, b) => (a.total_variable_compensation || 0) - (b.total_variable_compensation || 0),
     },
     {
       title: 'Acciones',

@@ -183,7 +183,6 @@ const PeriodsForm = ({
             ))}
           </Select>
         </Form.Item>
-
         <Form.Item
           name="minimum_score_employee"
           label="Calificación Mínima de Funcionario"
@@ -196,82 +195,24 @@ const PeriodsForm = ({
           />
         </Form.Item>
         <Form.Item
-          name="goal_floor"
-          label="Piso de la Meta"
+          name="company_profit_percentage"
+          label="% de cumplimiento de la utilidad"
           rules={[
-            { required: true, message: 'Por favor ingrese el piso de la Meta' },
-            { type: 'number' }
+            { required: true, message: 'Por favor ingrese el % de cumplimiento de la utilidad' },
+            { type: 'number', min: 0, max: 100, message: 'El porcentaje debe estar entre 0 y 100' }
           ]}
         >
           <InputNumber
-            placeholder="Ingrese el piso de la Meta"
+            placeholder="Ingrese el % de cumplimiento"
             style={{ width: '100%' }}
+            min={0}
+            max={100}
+            formatter={value => `${value}%`}
+            parser={value => value.replace('%', '')}
           />
         </Form.Item>
-        <Form.Item
-          name="goal_value"
-          label="Meta target"
-          rules={[
-            { required: true, message: 'Por favor ingrese la Meta target' },
-            { type: 'number' }
-          ]}
-        >
-          <InputNumber
-            placeholder="Ingrese la meta target"
-            style={{ width: '100%' }}
-          />
-        </Form.Item>
-        <Form.Item
-          name="goal_ceil"
-          label="Techo de la meta"
-          rules={[
-            { required: true, message: 'Por favor ingrese el techo de la meta' },
-            { type: 'number' }
-          ]}
-        >
-          <InputNumber
-            placeholder="Ingrese el techo de la meta"
-            style={{ width: '100%' }}
-          />
-          </Form.Item>
-        <Form.Item
-          name="formula_below_value"
-          label="Formula entre piso y target"
-          rules={[{ required: true, message: 'Por favor ingrese la formula entre piso y target' }]}
-        >
-          <Input placeholder="Ingrese la formula" />
-        </Form.Item>
-        <Form.Item
-          name="formula_above_value"
-          label="Formula entre target y techo"
-          rules={[{ required: true, message: 'Por favor ingrese la formula entre target y techo' }]}
-        >
-          <Input placeholder="Ingrese la formula" />
-        </Form.Item>
-        <Form.Item
-          name="goal_achieved"
-          label="Meta lograda"
-          dependencies={['goal_ceil']}
-          rules={[
-            { required: true, message: 'Por favor ingrese la Meta lograda' },
-            { type: 'number' },
-            {
-              validator: (_, value) => {
-                if (!value) return Promise.resolve();
-                const goalCeil = form.getFieldValue('goal_ceil');
-                if (goalCeil && value > goalCeil) {
-                  return Promise.reject(new Error('La meta lograda debe ser menor o igual al techo de la meta'));
-                }
-                return Promise.resolve();
-              }
-            }
-          ]}
-        >
-          <InputNumber
-            placeholder="Ingrese la meta lograda"
-            style={{ width: '100%' }}
-          />
-        </Form.Item>
+
+        
       </Form>
     </Modal>
   );

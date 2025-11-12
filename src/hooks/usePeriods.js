@@ -40,6 +40,7 @@ export const useCompanyPeriods = (companyId) => {
         formula_above_value: item.attributes?.formula_above_value || '',
         goal_achieved: item.attributes?.goal_achieved ?? null,
         score: item.attributes?.score ?? null,
+        company_profit_percentage: item.attributes?.company_profit_percentage ?? ''
       }));
   
   }
