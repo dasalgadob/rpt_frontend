@@ -44,6 +44,7 @@ const PeriodsForm = ({
           status: initialValues.status,
           company_profit_percentage: initialValues.company_profit_percentage,
           minimum_score_employee: initialValues.minimum_score_employee,
+          formula_below_value: initialValues.formula_below_value,
         };
         
         console.log('Datos mapeados para el formulario:', formData);
@@ -209,6 +210,19 @@ const PeriodsForm = ({
             max={100}
             formatter={value => `${value}%`}
             parser={value => value.replace('%', '')}
+          />
+        </Form.Item>
+
+        <Form.Item
+          name="formula_below_value"
+          label="Formula puntuacion personal"
+          rules={[
+            { required: true, message: 'Por favor ingrese la fórmula de puntuación personal' }
+          ]}
+        >
+          <Input
+            placeholder="Ingrese la fórmula de puntuación personal"
+            maxLength={255}
           />
         </Form.Item>
 
