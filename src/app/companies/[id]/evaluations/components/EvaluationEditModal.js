@@ -20,6 +20,9 @@ const EvaluationEditModal = ({ visible, onCancel, onSuccess, evaluation, company
 
   const evalData = useMemo(() => evalResponse?.data?.attributes || {}, [evalResponse]);
 
+  // Determine max score based on employee's is_base_110 property
+  const maxScore = evalResponse?.data?.attributes?.employee?.is_base_110 ? 110 : 100;
+
   useEffect(() => {
     if (visible && (evalData || evaluation)) {
       form.setFieldsValue({ job_competencies_score: evalData.job_competencies_score ?? evaluation.job_competencies_score });
@@ -85,9 +88,12 @@ const EvaluationEditModal = ({ visible, onCancel, onSuccess, evaluation, company
         <Form.Item
           name="job_competencies_score"
           label="Puntuación competencias"
-          rules={[{ required: true, message: 'Por favor ingresa la puntuación de competencias' }]}
+          rules={[
+            { required: true, message: 'Por favor ingresa la puntuación de competencias' },
+            { type: 'number', min: 0, max: maxScore, message: `La puntuación debe estar entre 0 y ${maxScore}` }
+          ]}
         >
-          <InputNumber min={0} max={100} step={0.1} style={{ width: '100%' }} placeholder="Puntuación competencias" />
+          <InputNumber min={0} max={maxScore} step={0.1} style={{ width: '100%' }} placeholder="Puntuación competencias" />
         </Form.Item>
       </Form>
     </Modal>
