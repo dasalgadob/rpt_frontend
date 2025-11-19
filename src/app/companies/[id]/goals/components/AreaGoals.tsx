@@ -87,7 +87,8 @@ const AreaGoals: React.FC<AreaGoalsProps> = ({ companyId }) => {
     } : undefined,
     employee: item.attributes?.employee ? {
       id: item.attributes.employee.id,
-      name: item.attributes.employee.name
+      name: item.attributes.employee.name,
+      is_base_110: item.attributes.employee.is_base_110
     } : undefined,
     goal: item.attributes?.goal
   })) || [];

@@ -31,6 +31,9 @@ const IndividualGoalForm = ({
   // Watch period value from form
   const periodValue = Form.useWatch(PERIOD_ID, form);
 
+  // Determine max score based on employee's is_base_110 property
+  const maxScore = !initialValues ? 110 : (initialValues?.employee_is_base_110 ? 110 : 100);
+
   // SWR mutation for creating/updating area goals
   const { trigger: saveGoal, isMutating } = useSWRMutation(
     `${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/position_goals`,
@@ -48,13 +51,14 @@ const IndividualGoalForm = ({
   useEffect(() => {
     if (visible) {
       if (initialValues) {
+        console.log("🚀 ~ IndividualGoalForm ~ initialValues:", initialValues);
         isSettingInitialValues.current = true;
         // Transform initialValues to match form field names
         const formValues = {
           ...initialValues,
           percentage: parseFloat(initialValues.percentage), // Ensure percentage is a float
           period_id: initialValues.period_id, // Handle both period object and period_id
-          employee_id: initialValues.employee.id
+          employee_id: initialValues.employee?.id
             ? { value: initialValues.employee.id, label: initialValues.employee.name }
             : undefined,
         };
@@ -191,13 +195,16 @@ const IndividualGoalForm = ({
         <Form.Item
           name="score"
           label="Evaluación"
-          rules={[{ required: true, message: 'Por favor ingrese la evaluación' }]}
+          rules={[
+            { required: true, message: 'Por favor ingrese la evaluación' },
+            { type: 'number', min: 0, max: maxScore, message: `La evaluación debe estar entre 0 y ${maxScore}` }
+          ]}
         >
           <InputNumber
             placeholder="Ingrese la evaluación"
             style={{ width: '100%' }}
             min={0}
-            max={110}
+            max={maxScore}
             step={0.1}
           />
         </Form.Item>

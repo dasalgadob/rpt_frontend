@@ -17,6 +17,7 @@ const PERIOD_ID = 'period_id';
 interface Employee {
   id: string | number;
   name: string;
+  is_base_110?: boolean;
 }
 
 interface Period {
@@ -63,9 +64,13 @@ const AreasGoalForm: React.FC<AreasGoalFormProps> = ({
   // Watch period value from form
   const periodValue = Form.useWatch(PERIOD_ID, form);
 
+  // Determine max score based on employee's is_base_110 property
+  const maxScore = !initialValues ? 110 : (initialValues?.employee?.is_base_110 ? 110 : 100);
+
   useEffect(() => {
     if (visible) {
       if (initialValues) {
+        console.log("Initial values: " + initialValues);
         isSettingInitialValues.current = true;
         const formValues: AreaGoalFormValues = {
           ...initialValues,
@@ -206,13 +211,16 @@ const AreasGoalForm: React.FC<AreasGoalFormProps> = ({
         <Form.Item
           name="score"
           label="Evaluación"
-          rules={[{ required: true, message: 'Por favor ingrese la evaluación' }]}
+          rules={[
+            { required: true, message: 'Por favor ingrese la evaluación' },
+            { type: 'number', min: 0, max: maxScore, message: `La evaluación debe estar entre 0 y ${maxScore}` }
+          ]}
         >
           <InputNumber
             placeholder="Ingrese la evaluación"
             style={{ width: '100%' }}
             min={0}
-            max={110}
+            max={maxScore}
             step={0.1}
           />
         </Form.Item>

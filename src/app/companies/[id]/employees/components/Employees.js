@@ -58,7 +58,8 @@ const Employees = ({ companyId }) => {
     position_id: item.attributes?.position_id,
     tipo_posicion: item.attributes?.position_type_name,
     position_type_id: item.attributes?.position_type_id,
-    salary: item.attributes?.salary
+    salary: item.attributes?.salary,
+    is_base_110: item.attributes?.is_base_110
   })) || [];
 
   const handleEdit = (record) => {
@@ -150,6 +151,27 @@ const Employees = ({ companyId }) => {
         }).format(value);
       },
       sorter: (a, b) => (a.salary || 0) - (b.salary || 0),
+    },
+    {
+      title: 'Base 110',
+      dataIndex: 'is_base_110',
+      key: 'is_base_110',
+      width: 100,
+      align: 'center',
+      render: (value) => {
+        if (value === null || value === undefined) return '';
+        return value ? 'Sí' : 'No';
+      },
+      sorter: (a, b) => {
+        const aValue = a.is_base_110 ? 1 : 0;
+        const bValue = b.is_base_110 ? 1 : 0;
+        return aValue - bValue;
+      },
+      filters: [
+        { text: 'Sí', value: true },
+        { text: 'No', value: false },
+      ],
+      onFilter: (value, record) => record.is_base_110 === value,
     },
     {
       title: 'Acciones',

@@ -55,6 +55,7 @@ const IndividualGoals = ({ companyId }) => {
     employee: item.attributes?.employee,
     employee_id: item.attributes?.employee_id,
     employee_name: item.attributes?.employee_name,
+    employee_is_base_110: item.attributes?.employee_is_base_110,
     id: item.id,
     department: item.attributes?.department_name,
     department_id: item.attributes?.department_id,

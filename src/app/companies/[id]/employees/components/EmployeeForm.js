@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef } from 'react';
-import { Form, Input, Modal } from 'antd';
+import { Form, Input, Modal, Checkbox } from 'antd';
 import { toast } from 'react-toastify';
 import useSWRMutation from 'swr/mutation';
 import { fetcher } from '../../../../../constants';
@@ -47,7 +47,8 @@ const EmployeeForm = ({
           department_id: initialValues.department_id,
           position_id: initialValues.position_id,
           position_type_id: initialValues.position_type_id,
-          position_type_name: initialValues.position_type_name
+          position_type_name: initialValues.position_type_name,
+          is_base_110: initialValues.is_base_110
         };
         
         // Set values in the next tick to ensure proper timing
@@ -147,6 +148,13 @@ const EmployeeForm = ({
             { required: true, message: 'Debe seleccionar un tipo de posición' }
           ]}
         />
+
+        <Form.Item
+          name="is_base_110"
+          valuePropName="checked"
+        >
+          <Checkbox>Base 110</Checkbox>
+        </Form.Item>
       </Form>
     </Modal>
   );
