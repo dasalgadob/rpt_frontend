@@ -6,9 +6,10 @@ import { toast } from 'react-toastify';
 interface UploadExcelProps extends ButtonProps {
   url: string;
   title?: string;
+  onSuccess?: () => void;
 }
 
-const UploadExcel: React.FC<UploadExcelProps> = ({ url, title = 'Importar Excel', ...props }) => {
+const UploadExcel: React.FC<UploadExcelProps> = ({ url, title = 'Importar Excel', onSuccess, ...props }) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -37,6 +38,7 @@ const UploadExcel: React.FC<UploadExcelProps> = ({ url, title = 'Importar Excel'
       }
       
       toast.success('Archivo importado correctamente');
+      onSuccess?.();
     } catch (err: any) {
       console.error('Upload error:', err);
       toast.error(err.message || 'No se pudo importar el archivo.');

@@ -14,6 +14,7 @@ import AreaFilterSelect from '../../goals/components/AreaFilterSelect';
 import PositionFilterSelect from '../../goals/components/PositionFilterSelect';
 import PositionTypeFilterSelect from '../../employees/components/PositionTypeFilterSelect';
 import DownloadButton from '@/components/DownloadButton';
+import UploadExcel from '@/components/UploadExcel';
 
 const Evaluations = ({ companyId }) => {
   const [filterForm] = Form.useForm();
@@ -436,6 +437,11 @@ const Evaluations = ({ companyId }) => {
               disabled={!periodFilter || isLoading}
             />
           )}
+          <UploadExcel
+            url={`${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/employee_evaluations/upload`}
+            title="Actualizar Competencias"
+            onSuccess={() => mutate()}
+          />
         </div>
       </div>
       
