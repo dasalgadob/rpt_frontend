@@ -3,7 +3,37 @@ services:
   rpt-frontend:
     build: .
     ports:
-      - "3002:3002"
+      # Bind ONLY to localhost — Apache reverse-proxies to this
+      - "127.0.0.1:3002:3002"
+    env_file:
+      - .env
     environment:
       - NODE_ENV=production
     restart: unless-stopped
+
+    # ── Security hardening ──
+    # Run as non-root user (must match the UID/GID in the Dockerfile)
+    user: "1001:1001"
+
+    # Read-only root filesystem; whitelist writable dirs via tmpfs
+    read_only: true
+    tmpfs:
+      - /tmp:noexec,nosuid,size=64m
+
+    # Drop ALL Linux capabilities — Next.js needs none
+    cap_drop:
+      - ALL
+
+    # Block privilege escalation inside the container
+    security_opt:
+      - no-new-privileges:true
+
+    # Resource limits to prevent crypto-mining abuse
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M

@@ -1,32 +1,38 @@
-# Use official Node.js LTS image
-FROM node:20-alpine as builder
+# ---- Build stage ----
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Install dependencies
+# Install dependencies first (better layer caching)
 COPY package.json package-lock.json* ./
-RUN npm install --production=false
+RUN npm ci
 
-# Copy all source code
+# Copy source code and build
 COPY . .
-
-# Build Next.js app
 RUN npm run build
 
-# Production image
-FROM node:20-alpine as runner
+# ---- Production stage ----
+FROM node:20-alpine AS runner
+
+# Security: don't run as root
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
+
 WORKDIR /app
 
 ENV NODE_ENV=production
+ENV PORT=3002
+ENV HOSTNAME="0.0.0.0"
 
-# Copy only necessary files for production
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/next.config.mjs ./
-COPY --from=builder /app/.env ./
+# Copy only the standalone output + static/public assets
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# Switch to non-root user
+USER nextjs
 
 EXPOSE 3002
 
-CMD ["npm", "start", "--", "-p", "3002"]
+# Use the standalone server directly (no npm/node_modules needed)
+CMD ["node", "server.js"]
