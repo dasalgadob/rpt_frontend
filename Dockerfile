@@ -34,5 +34,6 @@ USER nextjs
 
 EXPOSE 3002
 
-# Use the standalone server directly (no npm/node_modules needed)
+# Bypass the default docker-entrypoint.sh (blocked by no-new-privileges)
+ENTRYPOINT []
 CMD ["node", "server.js"]
