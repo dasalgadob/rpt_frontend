@@ -16,7 +16,11 @@ FROM node:20-alpine AS runner
 
 # Security: don't run as root
 RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nextjs
+    adduser --system --uid 1001 nextjs && \
+    # Strip file capabilities from node so no-new-privileges doesn't block exec
+    apk add --no-cache libcap && \
+    setcap -r /usr/local/bin/node 2>/dev/null || true && \
+    apk del --purge libcap
 
 WORKDIR /app
 
