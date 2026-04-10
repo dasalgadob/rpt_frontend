@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Table, Button, Space, Tag, Card, Col, Form, Row, Alert, Tooltip } from 'antd';
+import { Table, Button, Space, Tag, Card, Col, Form, Row, Alert, Tooltip, Popconfirm } from 'antd';
 import { PlusOutlined, EditOutlined } from '@ant-design/icons';
 import DeleteButton from '@/components/DeleteButton';
 import DownloadButton from '@/components/DownloadButton';
 import UploadExcel from '@/components/UploadExcel';
 import useSWR from 'swr';
+import useSWRMutation from 'swr/mutation';
 import { fetcher } from '../../../../../constants';
 import CorporateGoalForm from './CorporateGoalForm';
 import PeriodSelect from './PeriodSelect';
@@ -57,6 +58,21 @@ const AreaGoals: React.FC<AreaGoalsProps> = ({ companyId }) => {
     mode: 'add',
     selectedRecord: null
   });
+
+  const { trigger: destroyAll, isMutating: isDestroyingAll } = useSWRMutation(
+    companyId ? `${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/department_goals/destroy_all` : null,
+    (url: string) => fetcher(url, { method: 'DELETE' })
+  );
+
+  const handleDestroyAll = async () => {
+    try {
+      await destroyAll();
+      toast.success('Registros eliminados correctamente');
+      mutate();
+    } catch (error) {
+      toast.error('Error al eliminar los registros');
+    }
+  };
 
   const { data: response, error, isLoading, mutate } = useSWR(
     companyId
@@ -242,6 +258,18 @@ const AreaGoals: React.FC<AreaGoalsProps> = ({ companyId }) => {
       <div style={{ marginTop: 24, marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h3 style={{ margin: 0 }}>Metas de Área</h3>
         <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+          <Popconfirm
+            title="¿Está seguro de eliminar todos los registros?"
+            description="Esta acción no se puede deshacer."
+            onConfirm={handleDestroyAll}
+            okText="Sí, eliminar"
+            cancelText="Cancelar"
+            okButtonProps={{ danger: true }}
+          >
+            <Button danger loading={isDestroyingAll}>
+              Borrar registros
+            </Button>
+          </Popconfirm>
           <DownloadButton
             url={`${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/department_goals/download${periodFilter ? `?period_id=${periodFilter}` : ''}`}
             filename="metas_area.xlsx"
