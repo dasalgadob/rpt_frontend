@@ -7,84 +7,40 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter, usePathname } from 'next/navigation';
 import PropTypes from 'prop-types';
+import { isTokenValid } from '@/lib/jwt';
 
+// Guards every route except `/`. Runs on first mount of each page (including
+// a hard refresh, since layout.js remounts) and again whenever the pathname
+// changes.
+//
+// Session state lives entirely in the `Authorization` value login stores in
+// localStorage (see app/page.tsx / constants.js) — there is no separate
+// validation endpoint to call, so validity is just "well-formed JWT, not
+// expired yet" (see lib/jwt.js). The previous version of this check looked
+// for `access-token`/`client`/`uid` keys and called `/auth/validate_token`;
+// the app never wrote those keys and the backend never routed that endpoint,
+// so every direct navigation or refresh to a non-home page was bounced
+// straight back to login regardless of whether the session was actually
+// still good.
 const ValidateAuth = () => {
-  const { auth, setAuth } = useAuth(); // Access auth context
+  const { setAuth } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
-  const [isValidated, setIsValidated] = useState(false); // Track validation status
 
   useEffect(() => {
-    const validateToken = async (accessToken, client, uid) => {
-      try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/auth/validate_token`,
-          {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-              'access-token': accessToken,
-              client: client,
-              uid: uid
-            }
-          }
-        );
+    if (pathname === '/') return;
 
-        if (!response.ok) {
-          throw new Error('Token validation failed');
-        }
+    const token = localStorage.getItem('Authorization');
 
-        setAuth({ accessToken, client, uid }); // Update auth context
-        setIsValidated(true); // Mark validation as complete
-      } catch (error) {
-        console.error('🚀 ~ validateToken ~ error:', error);
-        localStorage.removeItem('access-token');
-        localStorage.removeItem('client');
-        localStorage.removeItem('uid');
-        
-        // Only redirect if not already on home page
-        if (pathname !== '/') {
-          router.push('/');
-        }
-      }
-    };
+    if (isTokenValid(token)) {
+      setAuth({ token });
+      return;
+    }
 
-    const checkAuth = () => {
-      if (isValidated) return; // Prevent re-validation
-
-      // Skip auth validation for home page
-      if (pathname === '/') {
-        setIsValidated(true);
-        return;
-      }
-
-      if (auth?.accessToken && auth?.client && auth?.uid) {
-        // If auth context has values, validate them
-        validateToken(auth.accessToken, auth.client, auth.uid);
-      } else {
-        // Otherwise, check localStorage for values
-        const accessToken = localStorage.getItem('access-token');
-        const client = localStorage.getItem('client');
-        const uid = localStorage.getItem('uid');
-
-        if (accessToken && client && uid) {
-          validateToken(accessToken, client, uid); // Validate localStorage values
-        } else {
-          // Clear localStorage and redirect to home if no values are found
-          localStorage.removeItem('access-token');
-          localStorage.removeItem('client');
-          localStorage.removeItem('uid');
-          
-          // Only redirect if not already on home page
-          if (pathname !== '/') {
-            router.push('/');
-          }
-        }
-      }
-    };
-
-    checkAuth(); // Run the checkAuth function on page load
-  }, [auth, router, pathname, isValidated, setAuth]);
+    localStorage.removeItem('Authorization');
+    setAuth(null);
+    router.push('/');
+  }, [pathname, router, setAuth]);
 
   return null; // This component doesn't render anything
 };

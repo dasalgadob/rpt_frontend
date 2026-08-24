@@ -66,16 +66,18 @@ const Home: React.FC = () => {
       const authData = await login({user: { email: values.email, password: values.password }});
       console.log("🚀 ~ handleLogin ~ authData:", authData)
       
-      // Fix the path to access company_id correctly
-      const companyId = authData?.data?.status?.data?.user?.company_id;
-      
+      const user = authData?.data?.status?.data?.user;
+      const companyId = user?.company_id;
+
+      toast.success('¡Inicio de sesión exitoso!');
+
+      // The backend has no admin flag, so a missing company_id is the only
+      // signal we get: those are operator accounts. Send them to the company
+      // picker rather than into one company's goals.
       if (companyId) {
-        toast.success('¡Inicio de sesión exitoso!');
         router.push(`/companies/${companyId}/goals`);
       } else {
-        // Handle case where company_id is null or undefined
-        toast.error('No se encontró una compañía asociada a este usuario');
-        console.log('User data:', authData?.data?.status?.data?.user);
+        router.push('/companies');
       }
     } catch (err: any) {
       console.log("🚀 ~ handleLogin ~ error:", err)

@@ -23,6 +23,15 @@ export const fetcher = async (url, params) => {
     error.status = res.status;
     error.details = response; // Agregar detalles completos del error
     console.error('API Error:', error);
+
+    // A 401 here means the stored token is dead (expired, revoked, or the
+    // request never had one) — drop it so the next navigation's ValidateAuth
+    // check (see app/layout.js) redirects to login on the first mount instead
+    // of every subsequent call failing against a token we already know is bad.
+    if (res.status === 401) {
+      localStorage.removeItem('Authorization');
+    }
+
     throw error;
   }
 
