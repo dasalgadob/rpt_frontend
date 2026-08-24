@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 import { Modal, Form, Input, Button } from 'antd';
 import { fetcher } from '@/constants';
 
-const PositionTypeFormModal = ({ visible, onCancel, onSuccess, initialValues, mode }) => {
+const PositionTypeFormModal = ({ visible, onCancel, onSuccess, initialValues, mode, companyId }) => {
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -17,13 +17,13 @@ const PositionTypeFormModal = ({ visible, onCancel, onSuccess, initialValues, mo
     try {
       const values = await form.validateFields();
       if (mode === 'add') {
-        await fetcher(`${process.env.NEXT_PUBLIC_API_URL}/companies/2/position_types`, {
+        await fetcher(`${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/position_types`, {
           method: 'POST',
           body: { position_type: { name: values.name } },
           headers: { 'Content-Type': 'application/json' },
         });
       } else if (mode === 'edit' && initialValues?.id) {
-        await fetcher(`${process.env.NEXT_PUBLIC_API_URL}/companies/2/position_types/${initialValues.id}`, {
+        await fetcher(`${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/position_types/${initialValues.id}`, {
           method: 'PATCH',
           body: { position_type: { name: values.name } },
           headers: { 'Content-Type': 'application/json' },

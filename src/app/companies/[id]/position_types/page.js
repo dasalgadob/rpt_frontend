@@ -8,7 +8,8 @@ import { fetcher } from '@/constants';
 import PositionTypeFormModal from './PositionTypeFormModal';
 import DeleteButton from '../../../../components/DeleteButton';
 
-const PositionTypesPage = () => {
+const PositionTypesPage = ({ params }) => {
+  const companyId = params.id;
   const [modalState, setModalState] = useState({
     visible: false,
     mode: 'add',
@@ -16,7 +17,7 @@ const PositionTypesPage = () => {
   });
 
   const { data: response, error, isLoading, mutate } = useSWR(
-    `${process.env.NEXT_PUBLIC_API_URL}/companies/2/position_types`,
+    companyId ? `${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/position_types` : null,
     (url) => fetcher(url, { method: 'GET' })
   );
 
@@ -60,7 +61,7 @@ const PositionTypesPage = () => {
             size="small"
           />
           <DeleteButton
-            endpoint={`${process.env.NEXT_PUBLIC_API_URL}/companies/2/position_types`}
+            endpoint={`${process.env.NEXT_PUBLIC_API_URL}/companies/${companyId}/position_types`}
             id={record.id}
             onSuccess={mutate}
             confirmText={`¿Seguro que deseas eliminar el tipo de posición "${record.name}"?`}
@@ -93,6 +94,7 @@ const PositionTypesPage = () => {
         onSuccess={handleModalSuccess}
         initialValues={modalState.selectedRecord}
         mode={modalState.mode}
+        companyId={companyId}
       />
     </div>
   );
